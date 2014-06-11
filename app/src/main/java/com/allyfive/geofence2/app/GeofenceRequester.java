@@ -120,7 +120,6 @@ public class GeofenceRequester
 
             // If a request is in progress
         } else {
-
             // Throw an exception and stop the request
             throw new UnsupportedOperationException();
         }
@@ -133,7 +132,6 @@ public class GeofenceRequester
     private void requestConnection() {
         getLocationClient().connect();
     }
-
     /**
      * Get the current location client, or create a new one if necessary.
      *

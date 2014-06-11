@@ -7,6 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -146,6 +149,38 @@ public class MainActivity extends FragmentActivity {
         mLatitude2 = (EditText) findViewById(R.id.current_latitude_value);
         mLongitude2 = (EditText) findViewById(R.id.current_longitude_value);
         mRadius2 = (EditText) findViewById(R.id.value_radius_2);
+
+
+
+        /* Use the LocationManager class to obtain GPS locations */
+        LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+        LocationListener mlocListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                location.getLatitude();
+                location.getLongitude();
+                String locationMessage = "My current location is: " + "Latitude = " + location.getLatitude() + "Longitude = " + location.getLongitude();
+                Toast.makeText( getApplicationContext(), locationMessage, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String s) {
+                Toast.makeText( getApplicationContext(),"Gps Enabled", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+                Toast.makeText( getApplicationContext(), "Gps Disabled", Toast.LENGTH_SHORT ).show();
+            }
+        };
+
+        mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
     }
 
     /*
@@ -445,14 +480,12 @@ public class MainActivity extends FragmentActivity {
      * and the PendingIntent to Location Services.
      */
     public void onRegisterClicked(View view) {
-
         /*
          * Record the request as an ADD. If a connection error occurs,
          * the app can automatically restart the add request if Google Play services
          * can fix the error
          */
         mRequestType = GeofenceUtils.REQUEST_TYPE.ADD;
-
         /*
          * Check for Google Play services. Do this after
          * setting the request type. If connecting to Google Play services
@@ -460,7 +493,6 @@ public class MainActivity extends FragmentActivity {
          * know what type of request was in progress.
          */
         if (!servicesConnected()) {
-
             return;
         }
 
@@ -471,7 +503,6 @@ public class MainActivity extends FragmentActivity {
         if (!checkInputFields()) {
             return;
         }
-
 
         /*
          * Create a version of geofence 2 that is "flattened" into individual fields. This
@@ -553,6 +584,7 @@ public class MainActivity extends FragmentActivity {
 
             mRadius2.setBackgroundColor(Color.BLACK);
         }
+
 
         /*
          * If all the input fields have been entered, test to ensure that their values are within
