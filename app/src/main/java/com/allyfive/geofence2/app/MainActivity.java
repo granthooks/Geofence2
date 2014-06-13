@@ -84,8 +84,8 @@ public class MainActivity extends FragmentActivity {
     private SimpleGeofence mUIGeofence2;
 
     // decimal formats for latitude, longitude, and radius
-    private DecimalFormat mLatLngFormat;
-    private DecimalFormat mRadiusFormat;
+    //private DecimalFormat mLatLngFormat;
+    //private DecimalFormat mRadiusFormat;
 
     /*
      * An instance of an inner class that receives broadcasts from listeners and from the
@@ -103,19 +103,6 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Set the pattern for the latitude and longitude format
-        String latLngPattern = getString(R.string.lat_lng_pattern);
-        // Set the format for latitude and longitude
-        mLatLngFormat = new DecimalFormat(latLngPattern);
-        // Localize the format
-        mLatLngFormat.applyLocalizedPattern(mLatLngFormat.toLocalizedPattern());
-        // Set the pattern for the radius format
-        String radiusPattern = getString(R.string.radius_pattern);
-        // Set the format for the radius
-        mRadiusFormat = new DecimalFormat(radiusPattern);
-        // Localize the pattern
-        mRadiusFormat.applyLocalizedPattern(mRadiusFormat.toLocalizedPattern());
 
         // Create a new broadcast receiver to receive updates from the listeners and service
         mBroadcastReceiver = new GeofenceSampleReceiver();
@@ -155,7 +142,7 @@ public class MainActivity extends FragmentActivity {
         /* Use the LocationManager class to obtain GPS locations */
         LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
-        LocationListener mlocListener = new LocationListener() {
+        LocationListener locListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 location.getLatitude();
@@ -180,7 +167,7 @@ public class MainActivity extends FragmentActivity {
             }
         };
 
-        mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+        mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, locListener);
     }
 
     /*
@@ -266,22 +253,7 @@ public class MainActivity extends FragmentActivity {
          * exist, null is returned.
          */
         mUIGeofence2 = mPrefs.getGeofence("2");
-        /*
-         * If the returned geofences have values, use them to set
-         * values in the UI, using the previously-defined number
-         * formats.
-         */
-        if (mUIGeofence2 != null) {
-            mLatitude2.setText(
-                    mLatLngFormat.format(
-                            mUIGeofence2.getLatitude()));
-            mLongitude2.setText(
-                    mLatLngFormat.format(
-                            mUIGeofence2.getLongitude()));
-            mRadius2.setText(
-                    mRadiusFormat.format(
-                            mUIGeofence2.getRadius()));
-        }
+
     }
 
     /*
