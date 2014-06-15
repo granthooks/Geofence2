@@ -131,7 +131,8 @@ public class MainActivity extends FragmentActivity {
 
         /* Use the LocationManager class to obtain GPS locations */
         LocationManager myLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        //Location location = myLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location lastKnownLocation = myLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
         LocationListener locListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
