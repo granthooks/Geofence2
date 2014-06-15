@@ -22,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.allyfive.geofence2.app.GeofenceUtils.REMOVE_TYPE;
@@ -73,9 +74,9 @@ public class MainActivity extends FragmentActivity {
     private GeofenceRemover geofenceRemover;
 
     // Handle to geofence latitude in the UI
-    private EditText myLatitude;
+    private TextView myLatitude;
     // Handle to geofence longitude in the UI
-    private EditText myLongitude;
+    private TextView myLongitude;
 
     // Internal lightweight geofence object
     private SimpleGeofence mySimpleGeofence;
@@ -126,12 +127,12 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
 
         // Get handles to the Geofence editor fields in the UI
-        myLatitude = (EditText) findViewById(R.id.current_latitude_value);
-        myLongitude = (EditText) findViewById(R.id.current_longitude_value);
+        myLatitude = (TextView) findViewById(R.id.current_latitude_value);
+        myLongitude = (TextView) findViewById(R.id.current_longitude_value);
 
         /* Use the LocationManager class to obtain GPS locations */
         LocationManager myLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        Location lastKnownLocation = myLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        // Location lastKnownLocation = myLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
         LocationListener locListener = new LocationListener() {
             @Override
@@ -291,7 +292,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        geofenceSharedPreferences.setGeofence("2", mySimpleGeofence);
+        // geofenceSharedPreferences.setGeofence("2", mySimpleGeofence);
     }
 
     /**
@@ -331,7 +332,7 @@ public class MainActivity extends FragmentActivity {
      * Called when the user clicks the "Remove geofences" button
      * @param view The view that triggered this callback
      */
-    public void onUnregisterByPendingIntentClicked(View view) {
+    public void RemoveAllGeofences(View view) {
         /*
          * Remove all geofences set by this app. To do this, get the
          * PendingIntent that was added when the geofences were added
@@ -380,7 +381,7 @@ public class MainActivity extends FragmentActivity {
      * Called when the user clicks the "Remove geofence 2" button
      * @param view The view that triggered this callback
      */
-    public void onUnregisterGeofence2Clicked(View view) {
+    public void RemoveGeofence(View view) {
         /*
          * Remove the geofence by creating a List of geofences to
          * remove and sending it to Location Services. The List
@@ -432,7 +433,7 @@ public class MainActivity extends FragmentActivity {
      * Location Services detects a geofence transition. Send the List
      * and the PendingIntent to Location Services.
      */
-    public void onRegisterClicked(View view) {
+    public void SaveLocation(View view) {
         /*
          * Record the request as an ADD. If a connection error occurs,
          * the app can automatically restart the add request if Google Play services
@@ -635,12 +636,10 @@ public class MainActivity extends FragmentActivity {
 
         /**
          * If you want to display a UI message about adding or removing geofences, put it here.
-         *
          * @param context A Context for this component
          * @param intent The received broadcast Intent
          */
         private void handleGeofenceStatus(Context context, Intent intent) {
-
         }
 
         /**
@@ -655,6 +654,14 @@ public class MainActivity extends FragmentActivity {
              * here. The current design of the app uses a notification to inform the
              * user that a transition has occurred.
              */
+
+
+            // Toast.makeText( context, message, Toast.LENGTH_SHORT).show();
+            // Get the type of transition (entry or exit)
+            //int transition = LocationClient.getGeofenceTransition(intent);
+
+            // Test that a valid transition was reported
+            //if ((transition == Geofence.GEOFENCE_TRANSITION_ENTER)
         }
 
         /**
