@@ -65,7 +65,7 @@ public class MainActivity extends FragmentActivity {
     private SimpleGeofenceStore geofenceSharedPreferences;
 
     // Store a list of geofences to add
-    List<Geofence> myGeofences;
+    List<Geofence> geofenceList;
 
     // Add geofences handler
     private GeofenceRequester geofenceRequester;
@@ -115,7 +115,8 @@ public class MainActivity extends FragmentActivity {
         geofenceSharedPreferences = new SimpleGeofenceStore(this);
 
         // Instantiate the current List of geofences
-        //myGeofences = new ArrayList<Geofence>();
+        geofenceList = new ArrayList<Geofence>();
+        
         // Instantiate a Geofence requester
         geofenceRequester = new GeofenceRequester(this);
         // Instantiate a Geofence remover
@@ -127,24 +128,21 @@ public class MainActivity extends FragmentActivity {
         // Get handles to the Geofence editor fields in the UI
         myLatitude = (EditText) findViewById(R.id.current_latitude_value);
         myLongitude = (EditText) findViewById(R.id.current_longitude_value);
-        // myRadius = (EditText) findViewById(R.id.value_radius_2);
-
 
         /* Use the LocationManager class to obtain GPS locations */
-        LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-
+        LocationManager myLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        //Location location = myLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         LocationListener locListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                location.getLatitude();
-                location.getLongitude();
-                String locationMessage = "My current location is: " + "Latitude = " + location.getLatitude() + "Longitude = " + location.getLongitude();
-                Toast.makeText( getApplicationContext(), locationMessage, Toast.LENGTH_SHORT).show();
+                //String locationMessage = "My current location is: " + "Latitude = " + location.getLatitude() + "Longitude = " + location.getLongitude();
+                //Toast.makeText( getApplicationContext(), locationMessage, Toast.LENGTH_SHORT).show();
+                myLatitude.setText(String.valueOf(location.getLatitude()));
+                myLongitude.setText(String.valueOf(location.getLongitude()));
             }
 
             @Override
             public void onStatusChanged(String s, int i, Bundle bundle) {
-
             }
 
             @Override
@@ -158,7 +156,8 @@ public class MainActivity extends FragmentActivity {
             }
         };
 
-        mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, locListener);
+        // Request the location updates from GPS, time in milliseconds, min-distance in meters
+        myLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, locListener);
     }
 
     /*
@@ -188,7 +187,7 @@ public class MainActivity extends FragmentActivity {
                             geofenceRequester.setInProgressFlag(false);
 
                             // Restart the process of adding the current geofences
-                            geofenceRequester.addGeofences(myGeofences);
+                            geofenceRequester.addGeofences(geofenceList);
 
                             // If the request was to remove geofences
                         } else if (GeofenceUtils.REQUEST_TYPE.REMOVE == requestType ){
@@ -275,8 +274,8 @@ public class MainActivity extends FragmentActivity {
             */
             // Remove all geofences from storage
             case R.id.menu_item_clear_geofence_history:
-                geofenceSharedPreferences.clearGeofence("1");
-                geofenceSharedPreferences.clearGeofence("2");
+               //geofenceSharedPreferences.clearGeofence("1");
+               //geofenceSharedPreferences.clearGeofence("2");
                 return true;
 
             // Pass through any other request
@@ -466,18 +465,18 @@ public class MainActivity extends FragmentActivity {
         );
 
         // Store this flat version in SharedPreferences
-        //geofenceSharedPreferences.setGeofence("2", mySimpleGeofence);
+        geofenceSharedPreferences.setGeofence("2", mySimpleGeofence);
         /*
          * Add Geofence objects to a List. toGeofence()
          * creates a Location Services Geofence object from a
          * flat object
          */
-        //myGeofences.add(mySimpleGeofence.toGeofence());
+        geofenceList.add(mySimpleGeofence.toGeofence());
 
         // Start the request. Fail if there's already a request in progress
         try {
             // Try to add geofences
-            geofenceRequester.addGeofences(myGeofences);
+            geofenceRequester.addGeofences(geofenceList);
         } catch (UnsupportedOperationException e) {
             // Notify user that previous request hasn't finished.
             Toast.makeText(this, R.string.add_geofences_already_requested_error,
