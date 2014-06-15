@@ -14,7 +14,7 @@
             android:id="@+id/current_location_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Current Location"
+            android:text="@string/currentlocation"
             android:textStyle="bold"
             android:layout_marginBottom="5dp"
             android:layout_marginTop="5dp"/>
@@ -52,7 +52,7 @@
                 android:inputType="numberDecimal|numberSigned" />
         </LinearLayout>
 
-        <!-- Geofence 2 -->
+        <!-- Geofence 2
         <TextView
             android:id="@+id/label_geofence_2"
             android:layout_width="match_parent"
@@ -111,6 +111,7 @@
             android:layout_marginLeft="5dp"
             android:inputType="numberDecimal" />
         </LinearLayout>
+        -->
         <!-- Register and unregister geofences buttons. -->
     <LinearLayout
         android:layout_width="match_parent"

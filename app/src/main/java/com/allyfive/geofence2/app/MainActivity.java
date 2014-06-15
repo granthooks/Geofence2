@@ -52,47 +52,45 @@ public class MainActivity extends FragmentActivity {
      */
     private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
     private static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS = GEOFENCE_EXPIRATION_IN_HOURS * DateUtils.HOUR_IN_MILLIS;
+    // Sets the geofence radius to 10 meters
+    private static final long GEOFENCE_RADIUS = 10;
 
     // Store the current request
-    private REQUEST_TYPE mRequestType;
+    private REQUEST_TYPE requestType;
 
     // Store the current type of removal
-    private REMOVE_TYPE mRemoveType;
+    private REMOVE_TYPE removeType;
 
     // Persistent storage for geofences
-    private SimpleGeofenceStore mPrefs;
+    private SimpleGeofenceStore geofenceSharedPreferences;
 
     // Store a list of geofences to add
-    List<Geofence> mCurrentGeofences;
+    List<Geofence> myGeofences;
 
     // Add geofences handler
-    private GeofenceRequester mGeofenceRequester;
+    private GeofenceRequester geofenceRequester;
     // Remove geofences handler
-    private GeofenceRemover mGeofenceRemover;
+    private GeofenceRemover geofenceRemover;
 
-    // Handle to geofence 2 latitude in the UI
-    private EditText mLatitude2;
-    // Handle to geofence 2 longitude in the UI
-    private EditText mLongitude2;
-    // Handle to geofence 2 radius in the UI
-    private EditText mRadius2;
+    // Handle to geofence latitude in the UI
+    private EditText myLatitude;
+    // Handle to geofence longitude in the UI
+    private EditText myLongitude;
 
-    /*
-     * Internal lightweight geofence objects for geofence 1 and 2
-     */
-    private SimpleGeofence mUIGeofence2;
+    // Internal lightweight geofence object
+    private SimpleGeofence mySimpleGeofence;
 
     /*
      * An instance of an inner class that receives broadcasts from listeners and from the
      * IntentService that receives geofence transition events
      */
-    private GeofenceSampleReceiver mBroadcastReceiver;
+    private GeofenceSampleReceiver myBroadcastReceiver;
 
     // An intent filter for the broadcast receiver
-    private IntentFilter mIntentFilter;
+    private IntentFilter myIntentFilter;
 
     // Store the list of geofences to remove
-    private List<String> mGeofenceIdsToRemove;
+    private List<String> geofencesToRemove;
 
 
     @Override
@@ -100,37 +98,36 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         // Create a new broadcast receiver to receive updates from the listeners and service
-        mBroadcastReceiver = new GeofenceSampleReceiver();
-
+        myBroadcastReceiver = new GeofenceSampleReceiver();
         // Create an intent filter for the broadcast receiver
-        mIntentFilter = new IntentFilter();
+        myIntentFilter = new IntentFilter();
 
         // Action for broadcast Intents that report successful addition of geofences
-        mIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCES_ADDED);
+        myIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCES_ADDED);
         // Action for broadcast Intents that report successful removal of geofences
-        mIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCES_REMOVED);
+        myIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCES_REMOVED);
         // Action for broadcast Intents containing various types of geofencing errors
-        mIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCE_ERROR);
+        myIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCE_ERROR);
         // All Location Services sample apps use this category
-        mIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+        myIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 
         // Instantiate a new geofence storage area
-        mPrefs = new SimpleGeofenceStore(this);
+        geofenceSharedPreferences = new SimpleGeofenceStore(this);
 
         // Instantiate the current List of geofences
-        //mCurrentGeofences = new ArrayList<Geofence>();
+        //myGeofences = new ArrayList<Geofence>();
         // Instantiate a Geofence requester
-        mGeofenceRequester = new GeofenceRequester(this);
+        geofenceRequester = new GeofenceRequester(this);
         // Instantiate a Geofence remover
-        mGeofenceRemover = new GeofenceRemover(this);
+        geofenceRemover = new GeofenceRemover(this);
 
         // Attach to the main UI
         setContentView(R.layout.activity_main);
 
         // Get handles to the Geofence editor fields in the UI
-        mLatitude2 = (EditText) findViewById(R.id.current_latitude_value);
-        mLongitude2 = (EditText) findViewById(R.id.current_longitude_value);
-        mRadius2 = (EditText) findViewById(R.id.value_radius_2);
+        myLatitude = (EditText) findViewById(R.id.current_latitude_value);
+        myLongitude = (EditText) findViewById(R.id.current_longitude_value);
+        // myRadius = (EditText) findViewById(R.id.value_radius_2);
 
 
         /* Use the LocationManager class to obtain GPS locations */
@@ -185,32 +182,32 @@ public class MainActivity extends FragmentActivity {
                     case Activity.RESULT_OK:
 
                         // If the request was to add geofences
-                        if (GeofenceUtils.REQUEST_TYPE.ADD == mRequestType) {
+                        if (GeofenceUtils.REQUEST_TYPE.ADD == requestType) {
 
                             // Toggle the request flag and send a new request
-                            mGeofenceRequester.setInProgressFlag(false);
+                            geofenceRequester.setInProgressFlag(false);
 
                             // Restart the process of adding the current geofences
-                            mGeofenceRequester.addGeofences(mCurrentGeofences);
+                            geofenceRequester.addGeofences(myGeofences);
 
                             // If the request was to remove geofences
-                        } else if (GeofenceUtils.REQUEST_TYPE.REMOVE == mRequestType ){
+                        } else if (GeofenceUtils.REQUEST_TYPE.REMOVE == requestType ){
 
                             // Toggle the removal flag and send a new removal request
-                            mGeofenceRemover.setInProgressFlag(false);
+                            geofenceRemover.setInProgressFlag(false);
 
                             // If the removal was by Intent
-                            if (GeofenceUtils.REMOVE_TYPE.INTENT == mRemoveType) {
+                            if (GeofenceUtils.REMOVE_TYPE.INTENT == removeType) {
 
                                 // Restart the removal of all geofences for the PendingIntent
-                                mGeofenceRemover.removeGeofencesByIntent(
-                                        mGeofenceRequester.getRequestPendingIntent());
+                                geofenceRemover.removeGeofencesByIntent(
+                                        geofenceRequester.getRequestPendingIntent());
 
                                 // If the removal was by a List of geofence IDs
                             } else {
 
                                 // Restart the removal of the geofence list
-                                mGeofenceRemover.removeGeofencesById(mGeofenceIdsToRemove);
+                                geofenceRemover.removeGeofencesById(geofencesToRemove);
                             }
                         }
                         break;
@@ -240,7 +237,7 @@ public class MainActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         // Register the broadcast receiver to receive status updates
-        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, mIntentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(myBroadcastReceiver, myIntentFilter);
     }
 
     /*
@@ -261,26 +258,25 @@ public class MainActivity extends FragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-
-
+           /* 
             // Request to clear the geofence2 settings in the UI
             case R.id.menu_item_clear_geofence2:
-                mLatitude2.setText(GeofenceUtils.EMPTY_STRING);
-                mLongitude2.setText(GeofenceUtils.EMPTY_STRING);
-                mRadius2.setText(GeofenceUtils.EMPTY_STRING);
+                myLatitude.setText(GeofenceUtils.EMPTY_STRING);
+                myLongitude.setText(GeofenceUtils.EMPTY_STRING);
+                //myRadius.setText(GeofenceUtils.EMPTY_STRING);
                 return true;
 
             // Request to clear both geofence settings in the UI
             case R.id.menu_item_clear_geofences:
-                mLatitude2.setText(GeofenceUtils.EMPTY_STRING);
-                mLongitude2.setText(GeofenceUtils.EMPTY_STRING);
-                mRadius2.setText(GeofenceUtils.EMPTY_STRING);
+                myLatitude.setText(GeofenceUtils.EMPTY_STRING);
+                myLongitude.setText(GeofenceUtils.EMPTY_STRING);
+               // myRadius.setText(GeofenceUtils.EMPTY_STRING);
                 return true;
-
+            */
             // Remove all geofences from storage
             case R.id.menu_item_clear_geofence_history:
-                mPrefs.clearGeofence("1");
-                mPrefs.clearGeofence("2");
+                geofenceSharedPreferences.clearGeofence("1");
+                geofenceSharedPreferences.clearGeofence("2");
                 return true;
 
             // Pass through any other request
@@ -295,7 +291,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mPrefs.setGeofence("2", mUIGeofence2);
+        geofenceSharedPreferences.setGeofence("2", mySimpleGeofence);
     }
 
     /**
@@ -351,7 +347,7 @@ public class MainActivity extends FragmentActivity {
          * can fix the error
          */
         // Record the type of removal
-        mRemoveType = GeofenceUtils.REMOVE_TYPE.INTENT;
+        removeType = GeofenceUtils.REMOVE_TYPE.INTENT;
 
         /*
          * Check for Google Play services. Do this after
@@ -370,7 +366,7 @@ public class MainActivity extends FragmentActivity {
          * PendingIntent was removed for some reason, re-create it; since it's always
          * created with FLAG_UPDATE_CURRENT, an identical PendingIntent is always created.
          */
-            mGeofenceRemover.removeGeofencesByIntent(mGeofenceRequester.getRequestPendingIntent());
+            geofenceRemover.removeGeofencesByIntent(geofenceRequester.getRequestPendingIntent());
 
         } catch (UnsupportedOperationException e) {
             // Notify user that previous request hasn't finished.
@@ -399,10 +395,10 @@ public class MainActivity extends FragmentActivity {
          * the app can automatically restart the removal if Google Play services
          * can fix the error
          */
-        mRemoveType = GeofenceUtils.REMOVE_TYPE.LIST;
+        removeType = GeofenceUtils.REMOVE_TYPE.LIST;
 
         // Create a List of 1 Geofence with the ID "2" and store it in the global list
-        mGeofenceIdsToRemove = Collections.singletonList("2");
+        geofencesToRemove = Collections.singletonList("2");
 
         /*
          * Check for Google Play services. Do this after
@@ -416,7 +412,7 @@ public class MainActivity extends FragmentActivity {
 
         // Try to remove the geofence
         try {
-            mGeofenceRemover.removeGeofencesById(mGeofenceIdsToRemove);
+            geofenceRemover.removeGeofencesById(geofencesToRemove);
 
             // Catch errors with the provided geofence IDs
         } catch (IllegalArgumentException e) {
@@ -442,7 +438,7 @@ public class MainActivity extends FragmentActivity {
          * the app can automatically restart the add request if Google Play services
          * can fix the error
          */
-        mRequestType = GeofenceUtils.REQUEST_TYPE.ADD;
+        requestType = GeofenceUtils.REQUEST_TYPE.ADD;
         /*
          * Check for Google Play services. Do this after
          * setting the request type. If connecting to Google Play services
@@ -457,12 +453,12 @@ public class MainActivity extends FragmentActivity {
          * Create a SimpleGeofence object that is "flattened" into individual fields. This
          * allows it to be stored in SharedPreferences.
          */
-        mUIGeofence2 = new SimpleGeofence(
+        mySimpleGeofence = new SimpleGeofence(
                 "2",
                 // Get latitude, longitude, and radius from the UI
-                Double.valueOf(mLatitude2.getText().toString()),
-                Double.valueOf(mLongitude2.getText().toString()),
-                Float.valueOf(mRadius2.getText().toString()),
+                Double.valueOf(myLatitude.getText().toString()),
+                Double.valueOf(myLongitude.getText().toString()),
+                (float) GEOFENCE_RADIUS,
                 // Set the expiration time
                 GEOFENCE_EXPIRATION_IN_MILLISECONDS,
                 // Detect both entry and exit transitions
@@ -470,18 +466,18 @@ public class MainActivity extends FragmentActivity {
         );
 
         // Store this flat version in SharedPreferences
-        //mPrefs.setGeofence("2", mUIGeofence2);
+        //geofenceSharedPreferences.setGeofence("2", mySimpleGeofence);
         /*
          * Add Geofence objects to a List. toGeofence()
          * creates a Location Services Geofence object from a
          * flat object
          */
-        //mCurrentGeofences.add(mUIGeofence2.toGeofence());
+        //myGeofences.add(mySimpleGeofence.toGeofence());
 
         // Start the request. Fail if there's already a request in progress
         try {
             // Try to add geofences
-            mGeofenceRequester.addGeofences(mCurrentGeofences);
+            geofenceRequester.addGeofences(myGeofences);
         } catch (UnsupportedOperationException e) {
             // Notify user that previous request hasn't finished.
             Toast.makeText(this, R.string.add_geofences_already_requested_error,
@@ -502,38 +498,36 @@ public class MainActivity extends FragmentActivity {
          * to black, ensuring that a field that was formerly wrong is reset.
          */
 
-        if (TextUtils.isEmpty(mLatitude2.getText())) {
-            mLatitude2.setBackgroundColor(Color.RED);
+        if (TextUtils.isEmpty(myLatitude.getText())) {
+            myLatitude.setBackgroundColor(Color.RED);
             Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
 
             // Set the validity to "invalid" (false)
             inputOK = false;
         } else {
 
-            mLatitude2.setBackgroundColor(Color.BLACK);
+            myLatitude.setBackgroundColor(Color.BLACK);
         }
-        if (TextUtils.isEmpty(mLongitude2.getText())) {
-            mLongitude2.setBackgroundColor(Color.RED);
+        if (TextUtils.isEmpty(myLongitude.getText())) {
+            myLongitude.setBackgroundColor(Color.RED);
             Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
 
             // Set the validity to "invalid" (false)
             inputOK = false;
         } else {
 
-            mLongitude2.setBackgroundColor(Color.BLACK);
+            myLongitude.setBackgroundColor(Color.BLACK);
         }
-        if (TextUtils.isEmpty(mRadius2.getText())) {
-            mRadius2.setBackgroundColor(Color.RED);
+        /*if (TextUtils.isEmpty(myRadius.getText())) {
+            myRadius.setBackgroundColor(Color.RED);
             Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
 
             // Set the validity to "invalid" (false)
             inputOK = false;
         } else {
 
-            mRadius2.setBackgroundColor(Color.BLACK);
-        }
-
-
+            myRadius.setBackgroundColor(Color.BLACK);
+        }*/
         /*
          * If all the input fields have been entered, test to ensure that their values are within
          * the acceptable range. The tests can't be performed until it's confirmed that there are
@@ -543,9 +537,9 @@ public class MainActivity extends FragmentActivity {
             /*
              * Get values from the latitude, longitude, and radius fields.
              */
-            double lat2 = Double.valueOf(mLatitude2.getText().toString());
-            double lng2 = Double.valueOf(mLongitude2.getText().toString());
-            float rd2 = Float.valueOf(mRadius2.getText().toString());
+            double lat2 = Double.valueOf(myLatitude.getText().toString());
+            double lng2 = Double.valueOf(myLongitude.getText().toString());
+            //float rd2 = Float.valueOf(myRadius.getText().toString());
 
             /*
              * Test latitude and longitude for minimum and maximum values. Highlight incorrect
@@ -553,7 +547,7 @@ public class MainActivity extends FragmentActivity {
              */
 
             if (lat2 > GeofenceUtils.MAX_LATITUDE || lat2 < GeofenceUtils.MIN_LATITUDE) {
-                mLatitude2.setBackgroundColor(Color.RED);
+                myLatitude.setBackgroundColor(Color.RED);
                 Toast.makeText(
                         this,
                         R.string.geofence_input_error_latitude_invalid,
@@ -563,11 +557,11 @@ public class MainActivity extends FragmentActivity {
                 inputOK = false;
             } else {
 
-                mLatitude2.setBackgroundColor(Color.BLACK);
+                myLatitude.setBackgroundColor(Color.BLACK);
             }
 
             if ((lng2 > GeofenceUtils.MAX_LONGITUDE) || (lng2 < GeofenceUtils.MIN_LONGITUDE)) {
-                mLongitude2.setBackgroundColor(Color.RED);
+                myLongitude.setBackgroundColor(Color.RED);
                 Toast.makeText(
                         this,
                         R.string.geofence_input_error_longitude_invalid,
@@ -577,11 +571,11 @@ public class MainActivity extends FragmentActivity {
                 inputOK = false;
             } else {
 
-                mLongitude2.setBackgroundColor(Color.BLACK);
+                myLongitude.setBackgroundColor(Color.BLACK);
             }
-
+/*
             if (rd2 < GeofenceUtils.MIN_RADIUS) {
-                mRadius2.setBackgroundColor(Color.RED);
+                myRadius.setBackgroundColor(Color.RED);
                 Toast.makeText(
                         this,
                         R.string.geofence_input_error_radius_invalid,
@@ -591,8 +585,8 @@ public class MainActivity extends FragmentActivity {
                 inputOK = false;
             } else {
 
-                mRadius2.setBackgroundColor(Color.BLACK);
-            }
+                myRadius.setBackgroundColor(Color.BLACK);
+            }*/
         }
 
         // If everything passes, the validity flag will still be true, otherwise it will be false.

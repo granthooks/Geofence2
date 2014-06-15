@@ -97,4 +97,5 @@
     <!-- Number patterns -->
     <string name="lat_lng_pattern">* ###.00000000;* -###.00000000</string>
     <string name="radius_pattern">* #.0000</string>
+    <string name="currentlocation">Current Location</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.allyfive.geofence2.app;
 
-
 import com.google.android.gms.location.Geofence;
 
 /**
