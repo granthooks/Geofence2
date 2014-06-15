@@ -31,7 +31,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.Geofence;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -83,10 +82,6 @@ public class MainActivity extends FragmentActivity {
      */
     private SimpleGeofence mUIGeofence2;
 
-    // decimal formats for latitude, longitude, and radius
-    //private DecimalFormat mLatLngFormat;
-    //private DecimalFormat mRadiusFormat;
-
     /*
      * An instance of an inner class that receives broadcasts from listeners and from the
      * IntentService that receives geofence transition events
@@ -123,7 +118,7 @@ public class MainActivity extends FragmentActivity {
         mPrefs = new SimpleGeofenceStore(this);
 
         // Instantiate the current List of geofences
-        mCurrentGeofences = new ArrayList<Geofence>();
+        //mCurrentGeofences = new ArrayList<Geofence>();
         // Instantiate a Geofence requester
         mGeofenceRequester = new GeofenceRequester(this);
         // Instantiate a Geofence remover
@@ -136,7 +131,6 @@ public class MainActivity extends FragmentActivity {
         mLatitude2 = (EditText) findViewById(R.id.current_latitude_value);
         mLongitude2 = (EditText) findViewById(R.id.current_longitude_value);
         mRadius2 = (EditText) findViewById(R.id.value_radius_2);
-
 
 
         /* Use the LocationManager class to obtain GPS locations */
@@ -247,13 +241,6 @@ public class MainActivity extends FragmentActivity {
         super.onResume();
         // Register the broadcast receiver to receive status updates
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, mIntentFilter);
-        /*
-         * Get existing geofences from the latitude, longitude, and
-         * radius values stored in SharedPreferences. If no values
-         * exist, null is returned.
-         */
-        mUIGeofence2 = mPrefs.getGeofence("2");
-
     }
 
     /*
@@ -373,7 +360,6 @@ public class MainActivity extends FragmentActivity {
          * know what type of request was in progress.
          */
         if (!servicesConnected()) {
-
             return;
         }
 
@@ -425,7 +411,6 @@ public class MainActivity extends FragmentActivity {
          * know what type of request was in progress.
          */
         if (!servicesConnected()) {
-
             return;
         }
 
@@ -469,15 +454,7 @@ public class MainActivity extends FragmentActivity {
         }
 
         /*
-         * Check that the input fields have values and that the values are with the
-         * permitted range
-         */
-        if (!checkInputFields()) {
-            return;
-        }
-
-        /*
-         * Create a version of geofence 2 that is "flattened" into individual fields. This
+         * Create a SimpleGeofence object that is "flattened" into individual fields. This
          * allows it to be stored in SharedPreferences.
          */
         mUIGeofence2 = new SimpleGeofence(
@@ -493,14 +470,13 @@ public class MainActivity extends FragmentActivity {
         );
 
         // Store this flat version in SharedPreferences
-        mPrefs.setGeofence("2", mUIGeofence2);
-
+        //mPrefs.setGeofence("2", mUIGeofence2);
         /*
          * Add Geofence objects to a List. toGeofence()
          * creates a Location Services Geofence object from a
          * flat object
          */
-        mCurrentGeofences.add(mUIGeofence2.toGeofence());
+        //mCurrentGeofences.add(mUIGeofence2.toGeofence());
 
         // Start the request. Fail if there's already a request in progress
         try {
