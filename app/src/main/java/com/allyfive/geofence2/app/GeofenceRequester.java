@@ -159,7 +159,7 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
                     Arrays.toString(geofenceRequestIds));
 
             // In debug mode, log the result
-            // Log.d(GeofenceUtils.APPTAG, msg);
+            Log.d(GeofenceUtils.APPTAG, msg);
             // Create an Intent to broadcast to the app
             broadcastIntent.setAction(GeofenceUtils.ACTION_GEOFENCES_ADDED)
                     .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
@@ -177,7 +177,7 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
             );
 
             // Log an error
-            // Log.e(GeofenceUtils.APPTAG, msg);
+            Log.e(GeofenceUtils.APPTAG, msg);
             // Create an Intent to broadcast to the app
             broadcastIntent.setAction(GeofenceUtils.ACTION_GEOFENCE_ERROR)
                     .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
@@ -207,7 +207,7 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
     @Override
     public void onConnected(Bundle arg0) {
         // If debugging, log the connection
-        // Log.d(GeofenceUtils.APPTAG, myActivity.getString(R.string.connected));
+        Log.d(GeofenceUtils.APPTAG, myActivity.getString(R.string.connected));
         // Continue adding the geofences
         continueAddGeofences();
     }
@@ -221,7 +221,7 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
         inProgress = false;
 
         // In debug mode, log the disconnection
-        // Log.d(GeofenceUtils.APPTAG, myActivity.getString(R.string.disconnected));
+        Log.d(GeofenceUtils.APPTAG, myActivity.getString(R.string.disconnected));
         // Destroy the current location client
         myLocationClient = null;
     }

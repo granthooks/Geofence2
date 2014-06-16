@@ -130,6 +130,7 @@ public class MainActivity extends FragmentActivity {
         myLatitude = (TextView) findViewById(R.id.current_latitude_value);
         myLongitude = (TextView) findViewById(R.id.current_longitude_value);
 
+
         /* Use the LocationManager class to obtain GPS locations */
         LocationManager myLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         // Location lastKnownLocation = myLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -168,7 +169,6 @@ public class MainActivity extends FragmentActivity {
      * GeofenceRemover and GeofenceRequester may call startResolutionForResult() to
      * start an Activity that handles Google Play services problems. The result of this
      * call returns here, to onActivityResult.
-     * calls
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -300,7 +300,6 @@ public class MainActivity extends FragmentActivity {
      * @return true if Google Play services is available, otherwise false
      */
     private boolean servicesConnected() {
-
         // Check that Google Play services is available
         int resultCode =
                 GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
@@ -425,8 +424,11 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
+
+
+
     /**
-     * Called when the user clicks the "Register geofences" button.
+     * Called when the user clicks the "savelocation" button.
      * Get the geofence parameters for each geofence and add them to
      * a List. Create the PendingIntent containing an Intent that
      * Location Services sends to this app's broadcast receiver when
@@ -446,14 +448,11 @@ public class MainActivity extends FragmentActivity {
          * fails, onActivityResult is eventually called, and it needs to
          * know what type of request was in progress.
          */
-        if (!servicesConnected()) {
-            return;
-        }
-
+        if (!servicesConnected()) { return; }
         /*
          * Create a SimpleGeofence object that is "flattened" into individual fields. This
          * allows it to be stored in SharedPreferences.
-         */
+
         mySimpleGeofence = new SimpleGeofence(
                 "2",
                 // Get latitude, longitude, and radius from the UI
@@ -465,15 +464,27 @@ public class MainActivity extends FragmentActivity {
                 // Detect both entry and exit transitions
                 Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT
         );
+        */
 
         // Store this flat version in SharedPreferences
-        geofenceSharedPreferences.setGeofence("2", mySimpleGeofence);
+        // geofenceSharedPreferences.setGeofence("2", mySimpleGeofence);
         /*
-         * Add Geofence objects to a List. toGeofence()
-         * creates a Location Services Geofence object from a
-         * flat object
+         * Add Geofence object to a List. toGeofence() creates a Location Services Geofence
+         * object from a flat object
          */
-        geofenceList.add(mySimpleGeofence.toGeofence());
+        // geofenceList.add(mySimpleGeofence.toGeofence());
+
+        geofenceList.add(
+            // Build a new Geofence object
+             new Geofence.Builder()
+                    .setRequestId("2")
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                    .setCircularRegion(
+                            Double.valueOf(myLatitude.getText().toString()),
+                            Double.valueOf(myLongitude.getText().toString()),
+                            GEOFENCE_RADIUS)
+                    .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                    .build());
 
         // Start the request. Fail if there's already a request in progress
         try {
@@ -611,7 +622,6 @@ public class MainActivity extends FragmentActivity {
 
             // Intent contains information about errors in adding or removing geofences
             if (TextUtils.equals(action, GeofenceUtils.ACTION_GEOFENCE_ERROR)) {
-
                 handleGeofenceError(context, intent);
 
                 // Intent contains information about successful addition or removal of geofences
@@ -654,14 +664,9 @@ public class MainActivity extends FragmentActivity {
              * here. The current design of the app uses a notification to inform the
              * user that a transition has occurred.
              */
-
-
-            // Toast.makeText( context, message, Toast.LENGTH_SHORT).show();
-            // Get the type of transition (entry or exit)
-            //int transition = LocationClient.getGeofenceTransition(intent);
-
-            // Test that a valid transition was reported
-            //if ((transition == Geofence.GEOFENCE_TRANSITION_ENTER)
+            String transitionMessage = "A Geofence transition has occurred: " +
+                    GeofenceUtils.ACTION_GEOFENCE_TRANSITION;
+            Toast.makeText( context, transitionMessage, Toast.LENGTH_SHORT).show();
         }
 
         /**
