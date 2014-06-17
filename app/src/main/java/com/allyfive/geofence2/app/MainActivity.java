@@ -558,7 +558,7 @@ public class MainActivity extends FragmentActivity {
              * values and set a Toast in the UI.
              */
 
-            if (lat2 > GeofenceUtils.MAX_LATITUDE || lat2 < GeofenceUtils.MIN_LATITUDE) {
+            /*if (lat2 > GeofenceUtils.MAX_LATITUDE || lat2 < GeofenceUtils.MIN_LATITUDE) {
                 myLatitude.setBackgroundColor(Color.RED);
                 Toast.makeText(
                         this,
@@ -585,6 +585,7 @@ public class MainActivity extends FragmentActivity {
 
                 myLongitude.setBackgroundColor(Color.BLACK);
             }
+            */
 /*
             if (rd2 < GeofenceUtils.MIN_RADIUS) {
                 myRadius.setBackgroundColor(Color.RED);
