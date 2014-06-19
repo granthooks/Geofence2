@@ -15,7 +15,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -62,7 +61,7 @@ public class MainActivity extends FragmentActivity {
     private REMOVE_TYPE removeType;
 
     // Persistent storage for geofences
-    private SimpleGeofenceStore geofenceSharedPreferences;
+    // private SimpleGeofenceStore geofenceSharedPreferences;
 
     // Store a list of geofences to add
     List<Geofence> geofenceList;
@@ -78,7 +77,7 @@ public class MainActivity extends FragmentActivity {
     private EditText myLocationLabel;
 
     // Internal lightweight geofence object
-    private SimpleGeofence mySimpleGeofence;
+    // private SimpleGeofence mySimpleGeofence;
 
     /*
      * An instance of an inner class that receives broadcasts from listeners and from the
@@ -424,8 +423,7 @@ public class MainActivity extends FragmentActivity {
 
     /**
      * Called when the user clicks the "savelocation" button.
-     * Get the geofence parameters for each geofence and add them to
-     * a List. Create the PendingIntent containing an Intent that
+     * Create the PendingIntent containing an Intent that
      * Location Services sends to this app's broadcast receiver when
      * Location Services detects a geofence transition. Send the List
      * and the PendingIntent to Location Services.
@@ -439,7 +437,7 @@ public class MainActivity extends FragmentActivity {
         requestType = GeofenceUtils.REQUEST_TYPE.ADD;
         // Check for Google Play services. Do this after setting the request type.
 
-        if (!servicesConnected()) { return; }
+        if (!servicesConnected() || !checkInputFields()) { return; }
         /*
          * Create a SimpleGeofence object that is "flattened" into individual fields. This
          * allows it to be stored in SharedPreferences.
@@ -493,46 +491,27 @@ public class MainActivity extends FragmentActivity {
     private boolean checkInputFields() {
         // Start with the input validity flag set to true
         boolean inputOK = true;
-        // Latitude, longitude, and radius values can't be empty.
-        if (TextUtils.isEmpty(myLatitude.getText())) {
-            myLatitude.setBackgroundColor(Color.RED);
+        // LocationLabel cannot be empty
+        if (TextUtils.isEmpty(myLocationLabel.getText())) {
+            myLocationLabel.setBackgroundColor(Color.RED);
             Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
-
             // Set the validity to "invalid" (false)
             inputOK = false;
         } else {
-            myLatitude.setBackgroundColor(Color.BLACK);
+            myLocationLabel.setBackgroundColor(Color.BLACK);
         }
-        if (TextUtils.isEmpty(myLongitude.getText())) {
-            myLongitude.setBackgroundColor(Color.RED);
-            Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
 
-            // Set the validity to "invalid" (false)
-            inputOK = false;
-        } else {
-            myLongitude.setBackgroundColor(Color.BLACK);
-        }
-        /*if (TextUtils.isEmpty(myRadius.getText())) {
-            myRadius.setBackgroundColor(Color.RED);
-            Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
-
-            // Set the validity to "invalid" (false)
-            inputOK = false;
-        } else {
-
-            myRadius.setBackgroundColor(Color.BLACK);
-        }*/
         /*
          * If all the input fields have been entered, test to ensure that their values are within
          * the acceptable range. The tests can't be performed until it's confirmed that there are
          * actual values in the fields.
          */
-        if (inputOK) {
+        // if (inputOK) {
             /*
              * Get values from the latitude, longitude, and radius fields.
              */
-            double lat2 = Double.valueOf(myLatitude.getText().toString());
-            double lng2 = Double.valueOf(myLongitude.getText().toString());
+            // double lat2 = Double.valueOf(myLatitude.getText().toString());
+            // double lng2 = Double.valueOf(myLongitude.getText().toString());
             //float rd2 = Float.valueOf(myRadius.getText().toString());
 
             /*
@@ -582,7 +561,7 @@ public class MainActivity extends FragmentActivity {
 
                 myRadius.setBackgroundColor(Color.BLACK);
             }*/
-        }
+        // }
 
         // If everything passes, the validity flag will still be true, otherwise it will be false.
         return inputOK;
@@ -631,30 +610,26 @@ public class MainActivity extends FragmentActivity {
          * @param context A Context for this component
          * @param intent The received broadcast Intent
          */
-        private void handleGeofenceStatus(Context context, Intent intent) {
+       /* private void handleGeofenceStatus(Context context, Intent intent) {
 
         }
-
+*/
         /**
          * Report geofence transitions to the UI
-         *
          * @param context A Context for this component
          * @param intent The Intent containing the transition
          */
         private void handleGeofenceTransition(Context context, Intent intent) {
-            /*
-             * If you want to change the UI when a transition occurs, put the code
-             * here. The current design of the app uses a notification to inform the
-             * user that a transition has occurred.
-             */
+            String action = intent.getAction();
+
             String transitionMessage = "A Geofence transition has occurred: " +
-                    GeofenceUtils.ACTION_GEOFENCE_TRANSITION;
+                    GeofenceUtils.ACTION_GEOFENCE_TRANSITION +
+                    ", and Action = " +  action;
             Toast.makeText( context, transitionMessage, Toast.LENGTH_SHORT).show();
         }
 
         /**
          * Report addition or removal errors to the UI, using a Toast
-         *
          * @param intent A broadcast Intent sent by ReceiveTransitionsIntentService
          */
         private void handleGeofenceError(Context context, Intent intent) {
