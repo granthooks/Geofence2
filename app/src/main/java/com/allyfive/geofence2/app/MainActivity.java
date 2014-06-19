@@ -51,14 +51,13 @@ public class MainActivity extends FragmentActivity {
      * Otherwise, your app will use up battery. To continue monitoring
      * a geofence indefinitely, set the expiration time to Geofence#NEVER_EXPIRE
      */
-    private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
-    private static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS = GEOFENCE_EXPIRATION_IN_HOURS * DateUtils.HOUR_IN_MILLIS;
+    // private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
+    // private static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS = GEOFENCE_EXPIRATION_IN_HOURS * DateUtils.HOUR_IN_MILLIS;
     // Sets the geofence radius to 10 meters
     private static final long GEOFENCE_RADIUS = 10;
 
     // Store the current request
     private REQUEST_TYPE requestType;
-
     // Store the current type of removal
     private REMOVE_TYPE removeType;
 
@@ -73,10 +72,10 @@ public class MainActivity extends FragmentActivity {
     // Remove geofences handler
     private GeofenceRemover geofenceRemover;
 
-    // Handle to geofence latitude in the UI
+    // Handle to fields in the UI
     private TextView myLatitude;
-    // Handle to geofence longitude in the UI
     private TextView myLongitude;
+    private EditText myLocationLabel;
 
     // Internal lightweight geofence object
     private SimpleGeofence mySimpleGeofence;
@@ -113,22 +112,21 @@ public class MainActivity extends FragmentActivity {
         myIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 
         // Instantiate a new geofence storage area
-        geofenceSharedPreferences = new SimpleGeofenceStore(this);
+        //geofenceSharedPreferences = new SimpleGeofenceStore(this);
 
         // Instantiate the current List of geofences
         geofenceList = new ArrayList<Geofence>();
         
-        // Instantiate a Geofence requester
+        // Instantiate a Geofence requester and remover
         geofenceRequester = new GeofenceRequester(this);
-        // Instantiate a Geofence remover
         geofenceRemover = new GeofenceRemover(this);
 
         // Attach to the main UI
         setContentView(R.layout.activity_main);
-
-        // Get handles to the Geofence editor fields in the UI
+        // Get handles to the text fields in the UI
         myLatitude = (TextView) findViewById(R.id.current_latitude_value);
         myLongitude = (TextView) findViewById(R.id.current_longitude_value);
+        myLocationLabel = (EditText) findViewById(R.id.current_location_label_value);
 
 
         /* Use the LocationManager class to obtain GPS locations */
@@ -424,9 +422,6 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
-
-
-
     /**
      * Called when the user clicks the "savelocation" button.
      * Get the geofence parameters for each geofence and add them to
@@ -442,17 +437,12 @@ public class MainActivity extends FragmentActivity {
          * can fix the error
          */
         requestType = GeofenceUtils.REQUEST_TYPE.ADD;
-        /*
-         * Check for Google Play services. Do this after
-         * setting the request type. If connecting to Google Play services
-         * fails, onActivityResult is eventually called, and it needs to
-         * know what type of request was in progress.
-         */
+        // Check for Google Play services. Do this after setting the request type.
+
         if (!servicesConnected()) { return; }
         /*
          * Create a SimpleGeofence object that is "flattened" into individual fields. This
          * allows it to be stored in SharedPreferences.
-
         mySimpleGeofence = new SimpleGeofence(
                 "2",
                 // Get latitude, longitude, and radius from the UI
@@ -465,7 +455,6 @@ public class MainActivity extends FragmentActivity {
                 Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT
         );
         */
-
         // Store this flat version in SharedPreferences
         // geofenceSharedPreferences.setGeofence("2", mySimpleGeofence);
         /*
@@ -476,14 +465,15 @@ public class MainActivity extends FragmentActivity {
 
         geofenceList.add(
             // Build a new Geofence object
+            // set the RequestId to the Current Location Label
              new Geofence.Builder()
-                    .setRequestId("2")
+                    .setRequestId(myLocationLabel.getText().toString())
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
                     .setCircularRegion(
                             Double.valueOf(myLatitude.getText().toString()),
                             Double.valueOf(myLongitude.getText().toString()),
                             GEOFENCE_RADIUS)
-                    .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
                     .build());
 
         // Start the request. Fail if there's already a request in progress
@@ -503,13 +493,7 @@ public class MainActivity extends FragmentActivity {
     private boolean checkInputFields() {
         // Start with the input validity flag set to true
         boolean inputOK = true;
-
-        /*
-         * Latitude, longitude, and radius values can't be empty. If they are, highlight the input
-         * field in red and put a Toast message in the UI. Otherwise set the input field highlight
-         * to black, ensuring that a field that was formerly wrong is reset.
-         */
-
+        // Latitude, longitude, and radius values can't be empty.
         if (TextUtils.isEmpty(myLatitude.getText())) {
             myLatitude.setBackgroundColor(Color.RED);
             Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
@@ -517,7 +501,6 @@ public class MainActivity extends FragmentActivity {
             // Set the validity to "invalid" (false)
             inputOK = false;
         } else {
-
             myLatitude.setBackgroundColor(Color.BLACK);
         }
         if (TextUtils.isEmpty(myLongitude.getText())) {
@@ -527,7 +510,6 @@ public class MainActivity extends FragmentActivity {
             // Set the validity to "invalid" (false)
             inputOK = false;
         } else {
-
             myLongitude.setBackgroundColor(Color.BLACK);
         }
         /*if (TextUtils.isEmpty(myRadius.getText())) {
@@ -626,16 +608,15 @@ public class MainActivity extends FragmentActivity {
                 handleGeofenceError(context, intent);
 
                 // Intent contains information about successful addition or removal of geofences
-            } else if (
-                    TextUtils.equals(action, GeofenceUtils.ACTION_GEOFENCES_ADDED)
-                            ||
-                            TextUtils.equals(action, GeofenceUtils.ACTION_GEOFENCES_REMOVED)) {
+            } else if (TextUtils.equals(action, GeofenceUtils.ACTION_GEOFENCES_ADDED)) {
+                // handleGeofenceStatus(context, intent);
+                Toast.makeText(context, "Geofence has been added!", Toast.LENGTH_SHORT).show();
 
-                handleGeofenceStatus(context, intent);
+            } else if (TextUtils.equals(action, GeofenceUtils.ACTION_GEOFENCES_REMOVED)) {
+                Toast.makeText(context, "Geofence has been removed!", Toast.LENGTH_SHORT).show();
 
                 // Intent contains information about a geofence transition
             } else if (TextUtils.equals(action, GeofenceUtils.ACTION_GEOFENCE_TRANSITION)) {
-
                 handleGeofenceTransition(context, intent);
 
                 // The Intent contained an invalid action
@@ -651,6 +632,7 @@ public class MainActivity extends FragmentActivity {
          * @param intent The received broadcast Intent
          */
         private void handleGeofenceStatus(Context context, Intent intent) {
+
         }
 
         /**

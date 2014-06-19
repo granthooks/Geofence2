@@ -98,4 +98,7 @@
     <string name="lat_lng_pattern">* ###.00000000;* -###.00000000</string>
     <string name="radius_pattern">* #.0000</string>
     <string name="currentlocation">Current Location</string>
+    <string name="Label">Label</string>
+    <string name="CurrentLocationHint">Name this Location</string>
+    <string name="savelocationbuttonlabel">Save Location</string>
 </resources>

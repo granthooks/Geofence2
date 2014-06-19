@@ -35,13 +35,10 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
 
     // Storage for a reference to the calling client
     private final Activity myActivity;
-
     // Stores the PendingIntent used to send geofence transitions back to the app
     private PendingIntent myGeofencePendingIntent;
-
     // Stores the current list of geofences
     private ArrayList<Geofence> listOfGeofences;
-
     // Stores the current instantiation of the location client
     private LocationClient myLocationClient;
 
@@ -116,19 +113,22 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
      * Request a connection to Location Services. This call returns immediately,
      * but the request is not complete until onConnected() or onConnectionFailure() is called.
      */
-    private void requestConnection() {
-        getLocationClient().connect();
-    }
-    /**
-     * Get the current location client, or create a new one if necessary.
-     * @return A LocationClient object
-     */
-    private GooglePlayServicesClient getLocationClient() {
-        if (myLocationClient == null) {
-            myLocationClient = new LocationClient(myActivity, this, this);
+        private void requestConnection() {
+            getLocationClient().connect();
         }
-        return myLocationClient;
-    }
+
+     /*
+     * Called by Location Services once the location client is connected.
+     * Continue by adding the requested geofences.
+     */
+        @Override
+        public void onConnected(Bundle arg0) {
+            // If debugging, log the connection
+            Log.d(GeofenceUtils.APPTAG, myActivity.getString(R.string.connected));
+            // Continue adding the geofences
+            continueAddGeofences();
+        }
+
     /**
      * Once the connection is available, send a request to add the Geofences
      */
@@ -150,10 +150,8 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
 
         // Temp storage for messages
         String msg;
-
         // If adding the geocodes was successful
         if (LocationStatusCodes.SUCCESS == statusCode) {
-
             // Create a message containing all the geofence IDs added.
             msg = myActivity.getString(R.string.add_geofences_result_success,
                     Arrays.toString(geofenceRequestIds));
@@ -201,18 +199,6 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
     }
 
     /*
-     * Called by Location Services once the location client is connected.
-     * Continue by adding the requested geofences.
-     */
-    @Override
-    public void onConnected(Bundle arg0) {
-        // If debugging, log the connection
-        Log.d(GeofenceUtils.APPTAG, myActivity.getString(R.string.connected));
-        // Continue adding the geofences
-        continueAddGeofences();
-    }
-
-    /*
      * Called by Location Services once the location client is disconnected.
      */
     @Override
@@ -224,6 +210,17 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
         Log.d(GeofenceUtils.APPTAG, myActivity.getString(R.string.disconnected));
         // Destroy the current location client
         myLocationClient = null;
+    }
+
+    /**
+     * Get the current location client, or create a new one if necessary.
+     * @return A LocationClient object
+     */
+    private GooglePlayServicesClient getLocationClient() {
+        if (myLocationClient == null) {
+            myLocationClient = new LocationClient(myActivity, this, this);
+        }
+        return myLocationClient;
     }
 
     /**
