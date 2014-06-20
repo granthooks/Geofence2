@@ -22,15 +22,15 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Class for connecting to Location Services and requesting geofences.
+ * Class for connecting to Location Services and adding geofences.
  * 
- * Note: Clients must ensure that Google Play services is available before requesting geofences.
+ * Note: Clients must ensure that Google Play services is available before adding geofences.
  *  Use GooglePlayServicesUtil.isGooglePlayServicesAvailable() to check.
  *
- * To use a GeofenceRequester, instantiate it and call AddGeofence(). Everything else is done
+ * To use a GeofenceAdder, instantiate it and call AddGeofence(). Everything else is done
  * automatically.
  */
-public class GeofenceRequester implements OnAddGeofencesResultListener, ConnectionCallbacks,
+public class GeofenceAdder implements OnAddGeofencesResultListener, ConnectionCallbacks,
         OnConnectionFailedListener {
 
     // Storage for a reference to the calling client
@@ -48,7 +48,7 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
      */
     private boolean inProgress;
 
-    public GeofenceRequester(Activity activityContext) {
+    public GeofenceAdder(Activity activityContext) {
         // Save the context
         myActivity = activityContext;
 
@@ -119,7 +119,7 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
 
      /*
      * Called by Location Services once the location client is connected.
-     * Continue by adding the requested geofences.
+     * Continue to add the geofences.
      */
         @Override
         public void onConnected(Bundle arg0) {
@@ -144,7 +144,7 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
      * Handle the result of adding the geofences
      */
     @Override
-    public void onAddGeofencesResult(int statusCode, String[] geofenceRequestIds) {
+    public void onAddGeofencesResult(int statusCode, String[] geofenceAddedIds) {
         // Create a broadcast Intent that notifies other components of success or failure
         Intent broadcastIntent = new Intent();
 
@@ -154,7 +154,7 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
         if (LocationStatusCodes.SUCCESS == statusCode) {
             // Create a message containing all the geofence IDs added.
             msg = myActivity.getString(R.string.add_geofences_result_success,
-                    Arrays.toString(geofenceRequestIds));
+                    Arrays.toString(geofenceAddedIds));
 
             // In debug mode, log the result
             Log.d(GeofenceUtils.APPTAG, msg);
@@ -171,7 +171,7 @@ public class GeofenceRequester implements OnAddGeofencesResultListener, Connecti
             msg = myActivity.getString(
                     R.string.add_geofences_result_failure,
                     statusCode,
-                    Arrays.toString(geofenceRequestIds)
+                    Arrays.toString(geofenceAddedIds)
             );
 
             // Log an error

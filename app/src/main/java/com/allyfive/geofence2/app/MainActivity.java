@@ -67,7 +67,7 @@ public class MainActivity extends FragmentActivity {
     List<Geofence> geofenceList;
 
     // Add geofences handler
-    private GeofenceRequester geofenceRequester;
+    private GeofenceAdder geofenceAdder;
     // Remove geofences handler
     private GeofenceRemover geofenceRemover;
 
@@ -117,7 +117,7 @@ public class MainActivity extends FragmentActivity {
         geofenceList = new ArrayList<Geofence>();
         
         // Instantiate a Geofence requester and remover
-        geofenceRequester = new GeofenceRequester(this);
+        geofenceAdder = new GeofenceAdder(this);
         geofenceRemover = new GeofenceRemover(this);
 
         // Attach to the main UI
@@ -163,7 +163,7 @@ public class MainActivity extends FragmentActivity {
     /*
      * Handle results returned to this Activity by other Activities started with
      * startActivityForResult(). In particular, the method onConnectionFailed() in
-     * GeofenceRemover and GeofenceRequester may call startResolutionForResult() to
+     * GeofenceRemover and GeofenceAdder may call startResolutionForResult() to
      * start an Activity that handles Google Play services problems. The result of this
      * call returns here, to onActivityResult.
      */
@@ -183,10 +183,10 @@ public class MainActivity extends FragmentActivity {
                         if (GeofenceUtils.REQUEST_TYPE.ADD == requestType) {
 
                             // Toggle the request flag and send a new request
-                            geofenceRequester.setInProgressFlag(false);
+                            geofenceAdder.setInProgressFlag(false);
 
                             // Restart the process of adding the current geofences
-                            geofenceRequester.addGeofences(geofenceList);
+                            geofenceAdder.addGeofences(geofenceList);
 
                             // If the request was to remove geofences
                         } else if (GeofenceUtils.REQUEST_TYPE.REMOVE == requestType ){
@@ -199,7 +199,7 @@ public class MainActivity extends FragmentActivity {
 
                                 // Restart the removal of all geofences for the PendingIntent
                                 geofenceRemover.removeGeofencesByIntent(
-                                        geofenceRequester.getRequestPendingIntent());
+                                        geofenceAdder.getRequestPendingIntent());
 
                                 // If the removal was by a List of geofence IDs
                             } else {
@@ -363,7 +363,7 @@ public class MainActivity extends FragmentActivity {
          * PendingIntent was removed for some reason, re-create it; since it's always
          * created with FLAG_UPDATE_CURRENT, an identical PendingIntent is always created.
          */
-            geofenceRemover.removeGeofencesByIntent(geofenceRequester.getRequestPendingIntent());
+            geofenceRemover.removeGeofencesByIntent(geofenceAdder.getRequestPendingIntent());
 
         } catch (UnsupportedOperationException e) {
             // Notify user that previous request hasn't finished.
@@ -477,7 +477,7 @@ public class MainActivity extends FragmentActivity {
         // Start the request. Fail if there's already a request in progress
         try {
             // Try to add geofences
-            geofenceRequester.addGeofences(geofenceList);
+            geofenceAdder.addGeofences(geofenceList);
         } catch (UnsupportedOperationException e) {
             // Notify user that previous request hasn't finished.
             Toast.makeText(this, R.string.add_geofences_already_requested_error,
