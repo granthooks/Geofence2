@@ -101,4 +101,5 @@
     <string name="Label">Label</string>
     <string name="CurrentLocationHint">Name this Location</string>
     <string name="savelocationbuttonlabel">Save Location</string>
+    <string name="saved_geofences">Saved Geofences</string>
 </resources>

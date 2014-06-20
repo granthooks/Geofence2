@@ -88,9 +88,9 @@ public final class GeofenceUtils {
 
 
     // Invalid values, used to test geofence storage when retrieving geofences
-    //public static final long INVALID_LONG_VALUE = -999l;
-    //public static final float INVALID_FLOAT_VALUE = -999.0f;
-    //public static final int INVALID_INT_VALUE = -999;
+    public static final long INVALID_LONG_VALUE = -999l;
+    public static final float INVALID_FLOAT_VALUE = -999.0f;
+    public static final int INVALID_INT_VALUE = -999;
 
     /*
      * Constants used in verifying the correctness of input values

@@ -135,7 +135,7 @@
         </LinearLayout>
         -->
         <!-- Register and unregister geofences buttons. -->
-    <LinearLayout
+        <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -156,6 +156,20 @@
             android:onClick="RemoveAllGeofences" />
 
     </LinearLayout>
-</LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/saved_geofences"
+            android:id="@+id/textView"
+            android:layout_marginTop="40dp" />
+
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/listOfAddedGeofences" />
+
+    </LinearLayout>
 
 </ScrollView>
