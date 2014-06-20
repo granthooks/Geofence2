@@ -37,15 +37,9 @@ import java.util.List;
 
 /**
  * UI handler for the Location Services Geofence sample app.
- * Allow input of latitude, longitude, and radius for two geofences.
- * When registering geofences, check input and then send the geofences to Location Services.
- * Also allow removing either one of or both of the geofences.
- * The menu allows you to clear the screen or delete the geofences stored in persistent memory.
- */
-public class MainActivity extends FragmentActivity {
+ * */
+ public class MainActivity extends FragmentActivity {
     /*
-     * Use to set an expiration time for a geofence. After this amount
-     * of time Location Services will stop tracking the geofence.
      * Remember to unregister a geofence when you're finished with it.
      * Otherwise, your app will use up battery. To continue monitoring
      * a geofence indefinitely, set the expiration time to Geofence#NEVER_EXPIRE
@@ -435,8 +429,9 @@ public class MainActivity extends FragmentActivity {
          * can fix the error
          */
         requestType = GeofenceUtils.REQUEST_TYPE.ADD;
-        // Check for Google Play services. Do this after setting the request type.
 
+        // Check for Google Play services. Do this after setting the request type.
+        // Also confirm the required input fields are not blank
         if (!servicesConnected() || !checkInputFields()) { return; }
         /*
          * Create a SimpleGeofence object that is "flattened" into individual fields. This
@@ -626,6 +621,7 @@ public class MainActivity extends FragmentActivity {
                     GeofenceUtils.ACTION_GEOFENCE_TRANSITION +
                     ", and Action = " +  action;
             Toast.makeText( context, transitionMessage, Toast.LENGTH_SHORT).show();
+            //Log.e(GeofenceUtils.APPTAG, "Intent.getAction() = "+ action);
         }
 
         /**

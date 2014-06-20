@@ -20,6 +20,9 @@ import java.util.List;
  * This class receives geofence transition events from Location Services, in the
  * form of an Intent containing the transition type and geofence id(s) that triggered
  * the event.
+ *
+ * Then it posts a notification icon in the Notification Bar that will take the user
+ * back to MainActivity.
  */
 public class ReceiveTransitionsIntentService extends IntentService {
 
@@ -78,7 +81,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
                             (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
                     ) {
 
-                // Post a notification
+                // Build string of geofence ids separated by GEOFENCE_ID_DELIMITER
                 List<Geofence> geofences = LocationClient.getTriggeringGeofences(intent);
                 String[] geofenceIds = new String[geofences.size()];
                 for (int index = 0; index < geofences.size() ; index++) {
@@ -87,7 +90,8 @@ public class ReceiveTransitionsIntentService extends IntentService {
                 String ids = TextUtils.join(GeofenceUtils.GEOFENCE_ID_DELIMITER,geofenceIds);
                 String transitionType = getTransitionString(transition);
 
-                sendNotification(transitionType, ids);
+                // Send string of ids to a notification
+                sendToNotificationBar(transitionType, ids);
 
                 // Log the transition type and a message
                 Log.d(GeofenceUtils.APPTAG,
@@ -111,9 +115,8 @@ public class ReceiveTransitionsIntentService extends IntentService {
      * Posts a notification in the notification bar when a transition is detected.
      * If the user clicks the notification, control goes to the main Activity.
      * @param transitionType The type of transition that occurred.
-     *
      */
-    private void sendNotification(String transitionType, String ids) {
+    private void sendToNotificationBar(String transitionType, String ids) {
 
         // Create an explicit content Intent that starts the main Activity
         Intent notificationIntent =
