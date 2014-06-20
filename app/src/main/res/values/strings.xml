@@ -102,4 +102,6 @@
     <string name="CurrentLocationHint">Name this Location</string>
     <string name="savelocationbuttonlabel">Save Location</string>
     <string name="saved_geofences">Saved Geofences</string>
+    <string name="temp_value">###</string>
+    <string name="messages_label">MESSAGES:</string>
 </resources>
