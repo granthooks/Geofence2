@@ -150,32 +150,32 @@ public class GeofenceAdder implements OnAddGeofencesResultListener, ConnectionCa
 
         // Temp storage for messages
         String msg;
+
         // If adding the geocodes was successful
         if (LocationStatusCodes.SUCCESS == statusCode) {
             // Create a message containing all the geofence IDs added.
-            msg = myActivity.getString(R.string.add_geofences_result_success,
-                    Arrays.toString(geofenceAddedIds));
-
-            // In debug mode, log the result
+            msg = myActivity.getString(R.string.add_geofences_result_success,Arrays.toString(geofenceAddedIds));
             Log.d(GeofenceUtils.APPTAG, msg);
+
             // Create an Intent to broadcast to the app
             broadcastIntent.setAction(GeofenceUtils.ACTION_GEOFENCES_ADDED)
                     .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
                     .putExtra(GeofenceUtils.EXTRA_GEOFENCE_STATUS, msg);
+
             // If adding the geofences failed
         } else {
             /*
              * Create a message containing the error code and the list
              * of geofence IDs you tried to add
              */
+            // Log an error
             msg = myActivity.getString(
                     R.string.add_geofences_result_failure,
                     statusCode,
                     Arrays.toString(geofenceAddedIds)
             );
-
-            // Log an error
             Log.e(GeofenceUtils.APPTAG, msg);
+
             // Create an Intent to broadcast to the app
             broadcastIntent.setAction(GeofenceUtils.ACTION_GEOFENCE_ERROR)
                     .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)

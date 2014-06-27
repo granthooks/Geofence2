@@ -493,7 +493,7 @@ import java.util.List;
             // Set the validity to "invalid" (false)
             inputOK = false;
         } else {
-            myLocationLabel.setBackgroundColor(Color.BLACK);
+            // myLocationLabel.setBackgroundColor(Color.BLACK);
         }
 
         /*
@@ -583,7 +583,7 @@ import java.util.List;
 
                 // Intent contains information about successful addition or removal of geofences
             } else if (TextUtils.equals(action, GeofenceUtils.ACTION_GEOFENCES_ADDED)) {
-                // handleGeofenceStatus(context, intent);
+                handleGeofenceAddRemove(context, intent);
                 Toast.makeText(context, "Geofence has been added!", Toast.LENGTH_SHORT).show();
 
             } else if (TextUtils.equals(action, GeofenceUtils.ACTION_GEOFENCES_REMOVED)) {
@@ -601,27 +601,29 @@ import java.util.List;
         }
 
         /**
-         * If you want to display a UI message about adding or removing geofences, put it here.
+         * If you want to perform actions after adding or removing geofences, put them here.
          * @param context A Context for this component
          * @param intent The received broadcast Intent
          */
-       /* private void handleGeofenceStatus(Context context, Intent intent) {
-
+        private void handleGeofenceAddRemove(Context context, Intent intent) {
+            if(TextUtils.equals(intent.getAction(), "ADD")) {
+                // add geofence information to database
+            } else if (TextUtils.equals(intent.getAction(),"REMOVE")) {
+                // remove geofence information from database
+            }
         }
-*/
+
         /**
          * Report geofence transitions to the UI
          * @param context A Context for this component
          * @param intent The Intent containing the transition
          */
         private void handleGeofenceTransition(Context context, Intent intent) {
-            String action = intent.getAction();
 
-            String transitionMessage = "A Geofence transition has occurred: " +
-                    GeofenceUtils.ACTION_GEOFENCE_TRANSITION +
-                    ", and Action = " +  action;
+            String transitionMessage = "A Geofence transition has occurred: " + intent.getAction();
+
             Toast.makeText( context, transitionMessage, Toast.LENGTH_SHORT).show();
-            //Log.e(GeofenceUtils.APPTAG, "Intent.getAction() = "+ action);
+            Log.e(GeofenceUtils.APPTAG, transitionMessage);
         }
 
         /**
