@@ -7,6 +7,11 @@ public class TimedGeofence implements Geofence {
     private String label;
     private int totaltime;
 
+    public TimedGeofence () {
+        label = null;
+        totaltime = 0;
+    }
+
     public void setLabel(String labelname) {
         label = labelname;
     }
@@ -22,6 +27,10 @@ public class TimedGeofence implements Geofence {
 
     public String getLabel() {
         return label;
+    }
+
+    public int getTotalTime() {
+        return totaltime;
     }
 
 

@@ -59,6 +59,7 @@ import java.util.List;
 
     // Store a list of geofences to add
     List<Geofence> geofenceList;
+    List<TimedGeofence> timedGeofenceList;
 
     // Add geofences handler
     private GeofenceAdder geofenceAdder;
@@ -109,6 +110,7 @@ import java.util.List;
 
         // Instantiate the current List of geofences
         geofenceList = new ArrayList<Geofence>();
+        timedGeofenceList = new ArrayList<TimedGeofence>();
         
         // Instantiate a Geofence requester and remover
         geofenceAdder = new GeofenceAdder(this);
@@ -371,7 +373,7 @@ import java.util.List;
      * Called when the user clicks the "Remove geofence 2" button
      * @param view The view that triggered this callback
      */
-    public void RemoveGeofence(View view) {
+    public void RemoveSingleGeofence(View view) {
         /*
          * Remove the geofence by creating a List of geofences to
          * remove and sending it to Location Services. The List
@@ -433,6 +435,13 @@ import java.util.List;
         // Check for Google Play services. Do this after setting the request type.
         // Also confirm the required input fields are not blank
         if (!servicesConnected() || !checkInputFields()) { return; }
+
+        // TO-DO
+        // Check to make sure this geofence doesn't overlap with an existing geofence
+        // Make sure this geofence name doesn't match an existing geofence
+
+        // Insert the current geofence into the database
+
         /*
          * Create a SimpleGeofence object that is "flattened" into individual fields. This
          * allows it to be stored in SharedPreferences.
@@ -456,6 +465,7 @@ import java.util.List;
          */
         // geofenceList.add(mySimpleGeofence.toGeofence());
 
+        Log.d(GeofenceUtils.APPTAG, "Creating Geofence object");
         geofenceList.add(
             // Build a new Geofence object
             // set the RequestId to the Current Location Label
@@ -468,6 +478,21 @@ import java.util.List;
                             GEOFENCE_RADIUS)
                     .setExpirationDuration(Geofence.NEVER_EXPIRE)
                     .build());
+
+        Log.d(GeofenceUtils.APPTAG, "Creating TimedGeofence object");
+        timedGeofenceList.add(
+                // Build a new TimedGeofence object
+                // set the RequestId to the Current Location Label
+                (TimedGeofence) new TimedGeofence.Builder()
+                    .setRequestId(myLocationLabel.getText().toString())
+                    .setTransitionTypes(TimedGeofence.GEOFENCE_TRANSITION_ENTER | TimedGeofence.GEOFENCE_TRANSITION_EXIT)
+                    .setCircularRegion(
+                            Double.valueOf(myLatitude.getText().toString()),
+                            Double.valueOf(myLongitude.getText().toString()),
+                            GEOFENCE_RADIUS)
+                    .setExpirationDuration(TimedGeofence.NEVER_EXPIRE)
+                    .build());
+
 
         // Start the request. Fail if there's already a request in progress
         try {

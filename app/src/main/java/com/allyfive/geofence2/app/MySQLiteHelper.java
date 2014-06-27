@@ -57,7 +57,7 @@ class MySQLiteHelper extends SQLiteOpenHelper {
 
     public void insertGeofenceToDB(Geofence geofence){
         //for logging
-        Log.d("insertGeofence", "Inserting geofence named: "+geofence.getRequestId().toString());
+        Log.d(GeofenceUtils.APPTAG, "Inserting geofence named: "+geofence.getRequestId().toString());
 
         // 1. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
@@ -101,7 +101,7 @@ class MySQLiteHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
 
-        Log.d("getAllGeofencesFromDB()", "Retrieved the following geofences: "+ geofences.toString());
+        Log.d(GeofenceUtils.APPTAG, "Retrieved the following geofences: "+ geofences.toString());
 
         return geofences;
     }
