@@ -124,7 +124,7 @@ public class GeofenceAdder implements OnAddGeofencesResultListener, ConnectionCa
         @Override
         public void onConnected(Bundle arg0) {
             // If debugging, log the connection
-            Log.d(GeofenceUtils.APPTAG, myActivity.getString(R.string.connected));
+            Log.d(GeofenceUtils.APPTAG, "Connected to Location Services");
             // Continue adding the geofences
             continueAddGeofences();
         }

@@ -10,6 +10,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/saved_geofences"
+            android:id="@+id/textView"
+            android:layout_marginTop="40dp" />
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/listOfAddedGeofences" />
+
         <TextView
             android:id="@+id/current_location_label"
             android:layout_width="match_parent"
@@ -117,18 +131,7 @@
                 android:id="@+id/messages_value"
                 android:layout_marginTop="5dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/saved_geofences"
-                android:id="@+id/textView"
-                android:layout_marginTop="40dp" />
 
-            <ListView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/listOfAddedGeofences" />
         </LinearLayout>
     </LinearLayout>
 

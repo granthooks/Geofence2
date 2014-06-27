@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -79,8 +80,8 @@ class MySQLiteHelper extends SQLiteOpenHelper {
 
     }
 
-    public List<Geofence> getAllGeofencesFromDB() {
-        List<Geofence> geofences = new LinkedList<Geofence>();
+    public List<TimedGeofence> getAllGeofencesFromDB() {
+        List<TimedGeofence> geofences = new ArrayList<TimedGeofence>();
         Cursor cursor = null;
 
         // 1. build the query
@@ -96,20 +97,16 @@ class MySQLiteHelper extends SQLiteOpenHelper {
         }
 
         // 3. build a geofence from each row, then add it to list
-        Geofence geofence;
+        TimedGeofence geofence;
         if (cursor.moveToFirst()) {
             do {
-                geofence = new Geofence() {
-                    @Override
-                    public String getRequestId() {
-                        return null;
-                    }
-                };
-                //book.setId(Integer.parseInt(cursor.getString(0)));
-                //book.setTitle(cursor.getString(1));
-                //book.setAuthor(cursor.getString(2));
+                geofence = new TimedGeofence();
+                geofence.setLabel(cursor.getString(1));
+                geofence.setLatitude(cursor.getDouble(2));
+                geofence.setLongitude(cursor.getDouble(3));
+                geofence.setTotalTime(cursor.getInt(4));
 
-                // Add book to books
+                // Add geofence to list
                 geofences.add(geofence);
             } while (cursor.moveToNext());
         }
@@ -117,5 +114,22 @@ class MySQLiteHelper extends SQLiteOpenHelper {
         Log.d(GeofenceUtils.APPTAG, "Retrieved the following geofences: "+ geofences.toString());
 
         return geofences;
+    }
+
+    public void RemoveAllGeofencesFromDB() {
+        // 1. build the query
+        String query = "DELETE FROM " + GEOFENCE_TABLE;
+
+        // 2. get reference to writable DB
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        try {
+            db.rawQuery(query, null);
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+
+        Log.d(GeofenceUtils.APPTAG, "All geofences removed from Database");
+
     }
 }

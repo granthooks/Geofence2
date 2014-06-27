@@ -20,7 +20,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +51,10 @@ import java.util.List;
     // private static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS = GEOFENCE_EXPIRATION_IN_HOURS * DateUtils.HOUR_IN_MILLIS;
     // Sets the geofence radius to 10 meters
     private static final long GEOFENCE_RADIUS = 10;
+    // GPS interval in milliseconds
+    private static final long GPS_INTERVAL = 60000;
+    // GPS minimum distance in meters
+    private static final long GPS_MIN_DISTANCE = 10;
 
     // Store the current request
     private REQUEST_TYPE requestType;
@@ -70,6 +77,7 @@ import java.util.List;
     private TextView myLatitude;
     private TextView myLongitude;
     private EditText myLocationLabel;
+    private TextView myMessage;
 
     // Internal lightweight geofence object
     // private SimpleGeofence mySimpleGeofence;
@@ -98,18 +106,16 @@ import java.util.List;
         myBroadcastReceiver = new GeofenceSampleReceiver();
         // Create an intent filter for the broadcast receiver
         myIntentFilter = new IntentFilter();
-
         // Action for broadcast Intents that report successful addition of geofences
         myIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCES_ADDED);
-        // Action for broadcast Intents that report successful removal of geofences
         myIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCES_REMOVED);
-        // Action for broadcast Intents containing various types of geofencing errors
         myIntentFilter.addAction(GeofenceUtils.ACTION_GEOFENCE_ERROR);
         // All Location Services sample apps use this category
         myIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 
         // Instantiate a new geofence storage area
         //geofenceSharedPreferences = new SimpleGeofenceStore(this);
+        myDBHelper = new MySQLiteHelper(this);
 
         // Instantiate the current List of geofences
         geofenceList = new ArrayList<Geofence>();
@@ -125,6 +131,7 @@ import java.util.List;
         myLatitude = (TextView) findViewById(R.id.current_latitude_value);
         myLongitude = (TextView) findViewById(R.id.current_longitude_value);
         myLocationLabel = (EditText) findViewById(R.id.current_location_label_value);
+        myMessage = (TextView) findViewById(R.id.messages_value);
 
 
         /* Use the LocationManager class to obtain GPS locations */
@@ -155,10 +162,11 @@ import java.util.List;
             }
         };
 
-
         // Request the location updates from GPS, time in milliseconds, min-distance in meters
-        myLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, locListener);
+        myLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, GPS_INTERVAL, GPS_MIN_DISTANCE, locListener);
     }
+
+
 
     /*
      * Handle results returned to this Activity by other Activities started with
@@ -237,12 +245,27 @@ import java.util.List;
         // Register the broadcast receiver to receive status updates
         LocalBroadcastManager.getInstance(this).registerReceiver(myBroadcastReceiver, myIntentFilter);
 
-        updateTable();
+        //updateTable();
     }
 
     // retrieve all geofences from SQLite db, then display them in a ListView
     private void updateTable() {
 
+        timedGeofenceList = myDBHelper.getAllGeofencesFromDB();
+
+        ListView listOfGeofences = (ListView) findViewById(R.id.listOfAddedGeofences);
+
+        ArrayAdapter<TimedGeofence> adapter = new ArrayAdapter<TimedGeofence>(this,
+                android.R.layout.simple_list_item_1, timedGeofenceList );
+
+        listOfGeofences.setAdapter(adapter);
+
+        // When you click on an item in the list, do something
+        listOfGeofences.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                Toast.makeText(getApplicationContext(),((TextView) v).getText(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
@@ -379,6 +402,9 @@ import java.util.List;
                     Toast.LENGTH_LONG).show();
         }
 
+        // attempt to remove all the geofences from the database as well
+        myDBHelper.RemoveAllGeofencesFromDB();
+
     }
 
     /**
@@ -444,8 +470,7 @@ import java.util.List;
          */
         requestType = GeofenceUtils.REQUEST_TYPE.ADD;
 
-        // Check for Google Play services. Do this after setting the request type.
-        // Also confirm the required input fields are not blank
+        // Check for Google Play services and check input fields
         if (!servicesConnected() || !checkInputFields()) { return; }
 
         // TO-DO
@@ -454,7 +479,6 @@ import java.util.List;
 
         // Insert the current geofence into the database
         Log.d(GeofenceUtils.APPTAG, "Calling insertGeofenceToDB()");
-        myDBHelper = new MySQLiteHelper(this);
         myDBHelper.insertGeofenceToDB(
                 myLocationLabel.getText().toString(),
                 Double.valueOf(myLatitude.getText().toString()),
@@ -479,6 +503,7 @@ import java.util.List;
                     .setExpirationDuration(Geofence.NEVER_EXPIRE)
                     .build());
 
+        /*
         Log.d(GeofenceUtils.APPTAG, "Creating TimedGeofence object");
         timedGeofenceList.add(
                 // Build a new TimedGeofence object
@@ -492,6 +517,7 @@ import java.util.List;
                             GEOFENCE_RADIUS)
                     .setExpirationDuration(TimedGeofence.NEVER_EXPIRE)
                     .build());
+        */
 
         // Start the request. Fail if there's already a request in progress
         try {
@@ -501,7 +527,11 @@ import java.util.List;
             // Notify user that previous request hasn't finished.
             Toast.makeText(this, R.string.add_geofences_already_requested_error,
                     Toast.LENGTH_LONG).show();
+            return;
         }
+
+        myMessage.setText("Just added "+myLocationLabel.getText().toString());
+        updateTable();
     }
     /**
      * Check all the input values and flag those that are incorrect
