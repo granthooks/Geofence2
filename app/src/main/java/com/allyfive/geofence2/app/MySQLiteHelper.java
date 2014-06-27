@@ -2,7 +2,9 @@ package com.allyfive.geofence2.app;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.IntentSender;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -19,15 +21,13 @@ class MySQLiteHelper extends SQLiteOpenHelper {
     private static final String GEOFENCE_TABLE = "geofencetable";
 
     // Table Columns names
-    private static final String KEY_ID = "_id";
+    //private static final String KEY_ID = "_id";
     private static final String KEY_LABEL = "label";
     private static final String KEY_LATITUDE = "latitude";
     private static final String KEY_LONGITUDE = "longitude";
     private static final String KEY_TOTALTIME = "totaltime";
 
-    private static final String[] COLUMNS = {KEY_ID,KEY_LABEL,KEY_LATITUDE,KEY_LONGITUDE,KEY_TOTALTIME};
-
-
+    //private static final String[] COLUMNS = {KEY_ID,KEY_LABEL,KEY_LATITUDE,KEY_LONGITUDE,KEY_TOTALTIME};
 
     public MySQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -55,35 +55,48 @@ class MySQLiteHelper extends SQLiteOpenHelper {
         this.onCreate(db);
     }
 
-    public void insertGeofenceToDB(Geofence geofence){
-        //for logging
-        Log.d(GeofenceUtils.APPTAG, "Inserting geofence named: "+geofence.getRequestId().toString());
+    public void insertGeofenceToDB(String label, double latitude, double longitude, int totaltime){
+
+        Log.d(GeofenceUtils.APPTAG, "Inserting geofence named: "+label);
 
         // 1. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
 
         // 2. create ContentValues to add key "column"/value
         ContentValues values = new ContentValues();
-        values.put(KEY_LABEL, geofence.getRequestId()); // get the name of the geofence
-        //values.put(KEY_TOTALTIME, geofence.getTotalTime()); // get totaltime value
+        values.put(KEY_LABEL, label); // name of the geofence
+        values.put(KEY_LATITUDE, latitude);
+        values.put(KEY_LONGITUDE, longitude);
+        values.put(KEY_TOTALTIME, totaltime);
 
-        db.insert(GEOFENCE_TABLE, null, values); // key/value -> keys = column names/ values = column values
-
+        try {
+            db.insert(GEOFENCE_TABLE, null, values); // key/value -> keys = column names/ values = column values
+        } catch(SQLException e) {
+            // Log the error
+            e.printStackTrace();
+        }
         db.close();
+
     }
 
     public List<Geofence> getAllGeofencesFromDB() {
         List<Geofence> geofences = new LinkedList<Geofence>();
+        Cursor cursor = null;
 
         // 1. build the query
         String query = "SELECT * FROM " + GEOFENCE_TABLE;
 
         // 2. get reference to writable DB
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
+
+        try {
+            cursor = db.rawQuery(query, null);
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
 
         // 3. build a geofence from each row, then add it to list
-        Geofence geofence = null;
+        Geofence geofence;
         if (cursor.moveToFirst()) {
             do {
                 geofence = new Geofence() {

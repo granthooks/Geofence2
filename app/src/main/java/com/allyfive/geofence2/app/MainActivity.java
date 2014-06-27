@@ -74,6 +74,9 @@ import java.util.List;
     // Internal lightweight geofence object
     // private SimpleGeofence mySimpleGeofence;
 
+    // SQLite helper class
+    private MySQLiteHelper myDBHelper;
+
     /*
      * An instance of an inner class that receives broadcasts from listeners and from the
      * IntentService that receives geofence transition events
@@ -151,6 +154,7 @@ import java.util.List;
                 Toast.makeText( getApplicationContext(), "Gps Disabled", Toast.LENGTH_SHORT ).show();
             }
         };
+
 
         // Request the location updates from GPS, time in milliseconds, min-distance in meters
         myLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, locListener);
@@ -232,6 +236,14 @@ import java.util.List;
         super.onResume();
         // Register the broadcast receiver to receive status updates
         LocalBroadcastManager.getInstance(this).registerReceiver(myBroadcastReceiver, myIntentFilter);
+
+        updateTable();
+    }
+
+    // retrieve all geofences from SQLite db, then display them in a ListView
+    private void updateTable() {
+
+
     }
 
     /*
@@ -441,30 +453,18 @@ import java.util.List;
         // Make sure this geofence name doesn't match an existing geofence
 
         // Insert the current geofence into the database
-
-        /*
-         * Create a SimpleGeofence object that is "flattened" into individual fields. This
-         * allows it to be stored in SharedPreferences.
-        mySimpleGeofence = new SimpleGeofence(
-                "2",
-                // Get latitude, longitude, and radius from the UI
+        Log.d(GeofenceUtils.APPTAG, "Calling insertGeofenceToDB()");
+        myDBHelper = new MySQLiteHelper(this);
+        myDBHelper.insertGeofenceToDB(
+                myLocationLabel.getText().toString(),
                 Double.valueOf(myLatitude.getText().toString()),
                 Double.valueOf(myLongitude.getText().toString()),
-                (float) GEOFENCE_RADIUS,
-                // Set the expiration time
-                GEOFENCE_EXPIRATION_IN_MILLISECONDS,
-                // Detect both entry and exit transitions
-                Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT
-        );
-        */
-        // Store this flat version in SharedPreferences
-        // geofenceSharedPreferences.setGeofence("2", mySimpleGeofence);
-        /*
-         * Add Geofence object to a List. toGeofence() creates a Location Services Geofence
-         * object from a flat object
-         */
-        // geofenceList.add(mySimpleGeofence.toGeofence());
+                0);
 
+        /*
+        *  Create the Geofence object and add it to the Geofence List
+        *  to be sent to Location Services
+        */
         Log.d(GeofenceUtils.APPTAG, "Creating Geofence object");
         geofenceList.add(
             // Build a new Geofence object
@@ -492,7 +492,6 @@ import java.util.List;
                             GEOFENCE_RADIUS)
                     .setExpirationDuration(TimedGeofence.NEVER_EXPIRE)
                     .build());
-
 
         // Start the request. Fail if there's already a request in progress
         try {
@@ -567,7 +566,7 @@ import java.util.List;
                 myLongitude.setBackgroundColor(Color.BLACK);
             }
             */
-/*
+            /*
             if (rd2 < GeofenceUtils.MIN_RADIUS) {
                 myRadius.setBackgroundColor(Color.RED);
                 Toast.makeText(
@@ -695,4 +694,5 @@ import java.util.List;
             return mDialog;
         }
     }
+
 }
