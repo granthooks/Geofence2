@@ -9,11 +9,11 @@ public class TimedGeofence implements Geofence {
     private double longitude;
     private int totaltime;
 
-    public TimedGeofence () {
-        label = null;
-        latitude = 0;
-        longitude = 0;
-        totaltime = 0;
+    public TimedGeofence (String label, double latitude, double longitude, int totaltime) {
+        this.label = label;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.totaltime = totaltime;
     }
 
     public void setLabel(String labelname) {
@@ -49,10 +49,12 @@ public class TimedGeofence implements Geofence {
     }
 
     public int getTotalTime() {
+
         return totaltime;
     }
 
     // added this to control what is displayed in the ListView
+    // because ArrayAdapter calls toString on each item and placing the contents in a TextView
     @Override
     public String toString() {
         return label;

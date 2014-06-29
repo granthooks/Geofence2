@@ -246,6 +246,8 @@ import java.util.List;
         LocalBroadcastManager.getInstance(this).registerReceiver(myBroadcastReceiver, myIntentFilter);
 
         //updateTable();
+        // possibly use ArrayAdapter.notifyDataSetChanged() instead of calling
+        // entire updateTable() function
     }
 
     // retrieve all geofences from SQLite db, then display them in a ListView
@@ -255,15 +257,24 @@ import java.util.List;
 
         ListView listOfGeofences = (ListView) findViewById(R.id.listOfAddedGeofences);
 
-        ArrayAdapter<TimedGeofence> adapter = new ArrayAdapter<TimedGeofence>(this,
-                android.R.layout.simple_list_item_1, timedGeofenceList );
+        // ArrayAdapter creates a view for each array item by calling toString() on each
+        // item and placing the contents in a TextView
+
+        /*  Uses the built-in row layout
+         ArrayAdapter<TimedGeofence> adapter = new ArrayAdapter<TimedGeofence>(
+         this,android.R.layout.simple_list_item_1, timedGeofenceList );
+        */
+
+        // Use our custom 'location_row' layout
+        ArrayAdapter<TimedGeofence> adapter = new ArrayAdapter<TimedGeofence>(
+                this,R.layout.location_row,R.id.geofence_label, timedGeofenceList);
 
         listOfGeofences.setAdapter(adapter);
 
         // When you click on an item in the list, do something
         listOfGeofences.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-                Toast.makeText(getApplicationContext(),((TextView) v).getText(), Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getApplicationContext(),((TextView) v).getText(), Toast.LENGTH_SHORT).show();
             }
         });
 
