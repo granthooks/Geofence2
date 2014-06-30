@@ -113,7 +113,7 @@ public class GeofenceAdder implements OnAddGeofencesResultListener, ConnectionCa
      * Request a connection to Location Services. This call returns immediately,
      * but the request is not complete until onConnected() or onConnectionFailure() is called.
      */
-        private void requestConnection() {
+    private void requestConnection() {
             getLocationClient().connect();
         }
 
@@ -121,13 +121,13 @@ public class GeofenceAdder implements OnAddGeofencesResultListener, ConnectionCa
      * Called by Location Services once the location client is connected.
      * Continue to add the geofences.
      */
-        @Override
-        public void onConnected(Bundle arg0) {
-            // If debugging, log the connection
-            Log.d(GeofenceUtils.APPTAG, "Connected to Location Services");
-            // Continue adding the geofences
-            continueAddGeofences();
-        }
+    @Override
+    public void onConnected(Bundle arg0) {
+        // If debugging, log the connection
+        Log.d(GeofenceUtils.APPTAG, "Connected to Location Services");
+        // Continue adding the geofences
+        continueAddGeofences();
+    }
 
     /**
      * Once the connection is available, send a request to add the Geofences
@@ -151,11 +151,11 @@ public class GeofenceAdder implements OnAddGeofencesResultListener, ConnectionCa
         // Temp storage for messages
         String msg;
 
-        // If adding the geocodes was successful
+        // If adding the geofences was successful
         if (LocationStatusCodes.SUCCESS == statusCode) {
             // Create a message containing all the geofence IDs added.
             msg = myActivity.getString(R.string.add_geofences_result_success,Arrays.toString(geofenceAddedIds));
-            Log.d(GeofenceUtils.APPTAG, msg);
+            Log.d(GeofenceUtils.APPTAG, "Successfully added geofence named: "+msg);
 
             // Create an Intent to broadcast to the app
             broadcastIntent.setAction(GeofenceUtils.ACTION_GEOFENCES_ADDED)

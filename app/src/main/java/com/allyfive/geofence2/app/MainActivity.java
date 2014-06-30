@@ -51,8 +51,9 @@ import java.util.List;
     // private static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS = GEOFENCE_EXPIRATION_IN_HOURS * DateUtils.HOUR_IN_MILLIS;
     // Sets the geofence radius to 10 meters
     private static final long GEOFENCE_RADIUS = 10;
-    // GPS interval in milliseconds
-    private static final long GPS_INTERVAL = 60000;
+    // GPS interval
+    private static final long GPS_INTERVAL_IN_MINUTES = 1;
+    private static final long GPS_INTERVAL = 60000 * GPS_INTERVAL_IN_MINUTES;
     // GPS minimum distance in meters
     private static final long GPS_MIN_DISTANCE = 10;
 
@@ -271,6 +272,7 @@ import java.util.List;
 
         listOfGeofences.setAdapter(adapter);
 
+
         // When you click on an item in the list, do something
         listOfGeofences.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -310,7 +312,7 @@ import java.util.List;
             case R.id.menu_item_clear_geofences:
                 myLatitude.setText(GeofenceUtils.EMPTY_STRING);
                 myLongitude.setText(GeofenceUtils.EMPTY_STRING);
-               // myRadius.setText(GeofenceUtils.EMPTY_STRING);
+                myRadius.setText(GeofenceUtils.EMPTY_STRING);
                 return true;
             */
             // Remove all geofences from storage
@@ -475,20 +477,21 @@ import java.util.List;
      */
     public void SaveLocation(View view) {
         /*
-         * Record the request as an ADD. If a connection error occurs,
-         * the app can automatically restart the add request if Google Play services
-         * can fix the error
+         * Record the request as an ADD. If a connection error occurs, the app can
+         * automatically restart the add request if Google Play services can fix the error
          */
         requestType = GeofenceUtils.REQUEST_TYPE.ADD;
 
         // Check for Google Play services and check input fields
         if (!servicesConnected() || !checkInputFields()) { return; }
 
-        // TO-DO
-        // Check to make sure this geofence doesn't overlap with an existing geofence
-        // Make sure this geofence name doesn't match an existing geofence
+        /*
+        TODO
+        Check to make sure this geofence doesn't overlap with an existing geofence
+        Make sure this geofence name doesn't match an existing geofence
+        Insert the current geofence into the database
+        */
 
-        // Insert the current geofence into the database
         Log.d(GeofenceUtils.APPTAG, "Calling insertGeofenceToDB()");
         myDBHelper.insertGeofenceToDB(
                 myLocationLabel.getText().toString(),
