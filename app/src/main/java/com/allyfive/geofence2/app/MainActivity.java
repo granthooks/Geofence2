@@ -21,9 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,7 +77,6 @@ import java.util.List;
     private TextView myLatitude;
     private TextView myLongitude;
     private EditText myLocationLabel;
-    private TextView myMessage;
 
     // Internal lightweight geofence object
     // private SimpleGeofence mySimpleGeofence;
@@ -132,7 +129,7 @@ import java.util.List;
         myLatitude = (TextView) findViewById(R.id.current_latitude_value);
         myLongitude = (TextView) findViewById(R.id.current_longitude_value);
         myLocationLabel = (EditText) findViewById(R.id.current_location_label_value);
-        myMessage = (TextView) findViewById(R.id.messages_value);
+        TextView myMessage = (TextView) findViewById(R.id.messages_value);
 
 
         /* Use the LocationManager class to obtain GPS locations */
@@ -669,7 +666,7 @@ import java.util.List;
         }
 
         /**
-         * If you want to perform actions after adding or removing geofences, put them here.
+         * If you want to perform actions AFTER adding or removing geofences, put them here.
          * @param context A Context for this component
          * @param intent The received broadcast Intent
          */

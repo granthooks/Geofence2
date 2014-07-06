@@ -2,18 +2,12 @@ package com.allyfive.geofence2.app;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.IntentSender;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
-import com.google.android.gms.location.Geofence;
-
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 class MySQLiteHelper extends SQLiteOpenHelper {
