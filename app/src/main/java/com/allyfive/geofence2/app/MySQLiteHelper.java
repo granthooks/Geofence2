@@ -83,6 +83,7 @@ class MySQLiteHelper extends SQLiteOpenHelper {
 
     public List<TimedGeofence> getAllGeofencesFromDB() {
         List<TimedGeofence> geofences = new ArrayList<TimedGeofence>();
+        // TimedGeofence[] geofenceArray = new TimedGeofence[0];
         TimedGeofence geofence;
         Cursor cursor = null;
 
@@ -108,7 +109,8 @@ class MySQLiteHelper extends SQLiteOpenHelper {
                 cursor.getInt(4));
 
                 // Add geofence to list
-                geofences.add(geofence);
+                 geofences.add(geofence);
+                //geofenceArray[0] = geofence;
             } while (cursor.moveToNext());
 
             Log.d(GeofenceUtils.APPTAG, "Retrieved the following geofences: "+ geofences.toString());

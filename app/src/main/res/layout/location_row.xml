@@ -16,12 +16,23 @@ android:orientation="horizontal">
 </ImageView>
 
 <TextView
-    android:id="@+id/label"
+    android:id="@+id/location_label"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
     android:text="@+id/geofence_label"
     android:textSize="14sp" >
+</TextView>
+
+
+<TextView
+    android:id="@+id/totaltime"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:text="10h"
+    android:textSize="14sp"
+    android:gravity="right">
 </TextView>
 
 </LinearLayout>

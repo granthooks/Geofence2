@@ -54,7 +54,8 @@ public class TimedGeofence implements Geofence {
     }
 
     // added this to control what is displayed in the ListView
-    // because ArrayAdapter calls toString on each item and placing the contents in a TextView
+    // because ArrayAdapter calls toString on each item and places the contents in a TextView
+    // this is only necessary if using the ArrayAdapter for the ListView instead of a custom adapter
     @Override
     public String toString() {
         return label;

@@ -155,7 +155,7 @@ public class GeofenceAdder implements OnAddGeofencesResultListener, ConnectionCa
         if (LocationStatusCodes.SUCCESS == statusCode) {
             // Create a message containing all the geofence IDs added.
             msg = myActivity.getString(R.string.add_geofences_result_success,Arrays.toString(geofenceAddedIds));
-            Log.d(GeofenceUtils.APPTAG, "Successfully added geofence named: "+msg);
+            Log.d(GeofenceUtils.APPTAG, "Successfully added geofence named: "+ Arrays.toString(geofenceAddedIds));
 
             // Create an Intent to broadcast to the app
             broadcastIntent.setAction(GeofenceUtils.ACTION_GEOFENCES_ADDED)

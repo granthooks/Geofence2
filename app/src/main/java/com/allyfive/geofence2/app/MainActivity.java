@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -120,7 +121,6 @@ import java.util.List;
 
         // Instantiate the current List of geofences
         geofenceList = new ArrayList<Geofence>();
-        timedGeofenceList = new ArrayList<TimedGeofence>();
         
         // Instantiate a Geofence requester and remover
         geofenceAdder = new GeofenceAdder(this);
@@ -253,27 +253,25 @@ import java.util.List;
 
     // retrieve all geofences from SQLite db, then display them in a ListView
     private void updateTable() {
+        Log.d(GeofenceUtils.APPTAG, "about to UpdateTable()");
 
         timedGeofenceList = myDBHelper.getAllGeofencesFromDB();
 
-        ListView listOfGeofences = (ListView) findViewById(R.id.listOfAddedGeofences);
-
         // ArrayAdapter creates a view for each array item by calling toString() on each
         // item and placing the contents in a TextView
-
-        /*  Uses the built-in row layout
+        /* Uses the built-in row
          ArrayAdapter<TimedGeofence> adapter = new ArrayAdapter<TimedGeofence>(
          this,android.R.layout.simple_list_item_1, timedGeofenceList );
         */
+        // Use our custom adapter
+        MyAdapter adapter = new MyAdapter(this, timedGeofenceList);
 
-        // Use our custom 'location_row' layout
-        ArrayAdapter<TimedGeofence> adapter = new ArrayAdapter<TimedGeofence>(
-                this,R.layout.location_row,R.id.geofence_label, timedGeofenceList);
+        ListView listOfGeofences = (ListView) findViewById(R.id.listOfAddedGeofences);
 
         listOfGeofences.setAdapter(adapter);
 
-
         // When you click on an item in the list, do something
+        Log.d(GeofenceUtils.APPTAG, "about to listOfGeofences.setOnItemClickListener()");
         listOfGeofences.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                // Toast.makeText(getApplicationContext(),((TextView) v).getText(), Toast.LENGTH_SHORT).show();
@@ -493,6 +491,7 @@ import java.util.List;
         */
 
         Log.d(GeofenceUtils.APPTAG, "Calling insertGeofenceToDB()");
+        // insert to database (label, latitude, longitude, totaltime)
         myDBHelper.insertGeofenceToDB(
                 myLocationLabel.getText().toString(),
                 Double.valueOf(myLatitude.getText().toString()),
@@ -544,7 +543,8 @@ import java.util.List;
             return;
         }
 
-        myMessage.setText("Just added "+myLocationLabel.getText().toString());
+        Log.d(GeofenceUtils.APPTAG, "Just added geofence "+myLocationLabel.getText().toString() + " to Location Services");
+        //myMessage.setText("Just added "+myLocationLabel.getText().toString());
         updateTable();
     }
     /**
