@@ -278,9 +278,6 @@ import java.util.List;
         listOfGeofences.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 //Toast.makeText(getApplicationContext(),((TextView) v).getText(), Toast.LENGTH_SHORT).show();
-                Toast.makeText(getApplicationContext(),((TextView) v).getId(), Toast.LENGTH_SHORT).show();
-
-
 
                 // call a function to remove the selected list entry
                 //ListEntry entry= (ListEntry) parent.getAdapter().getItem(position);
