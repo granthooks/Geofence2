@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -130,6 +131,11 @@ import java.util.List;
         myLongitude = (TextView) findViewById(R.id.current_longitude_value);
         myLocationLabel = (EditText) findViewById(R.id.current_location_label_value);
         TextView myMessage = (TextView) findViewById(R.id.messages_value);
+
+
+        // SET DEFAULT VALUES FOR TESTING
+        myLatitude.setText("111.111");
+        myLongitude.setText("222.222");
 
 
         /* Use the LocationManager class to obtain GPS locations */
@@ -243,7 +249,7 @@ import java.util.List;
         // Register the broadcast receiver to receive status updates
         LocalBroadcastManager.getInstance(this).registerReceiver(myBroadcastReceiver, myIntentFilter);
 
-        //updateTable();
+        updateTable();
         // possibly use ArrayAdapter.notifyDataSetChanged() instead of calling
         // entire updateTable() function
     }
@@ -271,7 +277,15 @@ import java.util.List;
         Log.d(GeofenceUtils.APPTAG, "about to listOfGeofences.setOnItemClickListener()");
         listOfGeofences.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-               // Toast.makeText(getApplicationContext(),((TextView) v).getText(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(),((TextView) v).getText(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),((TextView) v).getId(), Toast.LENGTH_SHORT).show();
+
+
+
+                // call a function to remove the selected list entry
+                //ListEntry entry= (ListEntry) parent.getAdapter().getItem(position);
+                //String message = entry.getMessage();
+
             }
         });
 
@@ -413,17 +427,15 @@ import java.util.List;
         // attempt to remove all the geofences from the database as well
         myDBHelper.RemoveAllGeofencesFromDB();
 
+        updateTable();
     }
 
-    /**
-     * Called when the user clicks the "Remove geofence 2" button
-     * @param view The view that triggered this callback
-     */
+
     public void RemoveSingleGeofence(View view) {
         /*
          * Remove the geofence by creating a List of geofences to
          * remove and sending it to Location Services. The List
-         * contains the id of geofence 2, which is "2".
+         * contains the id of the geofence.
          * The removal happens asynchronously; Location Services calls
          * onRemoveGeofencesByPendingIntentResult() (implemented in
          * the current Activity) when the removal is done.
@@ -461,6 +473,11 @@ import java.util.List;
             Toast.makeText(this, R.string.remove_geofences_already_requested_error,
                     Toast.LENGTH_LONG).show();
         }
+
+        // remove this geofence from the database as well
+
+        // update the table
+        updateTable();
     }
 
     /**
@@ -649,10 +666,10 @@ import java.util.List;
                 // Intent contains information about successful addition or removal of geofences
             } else if (TextUtils.equals(action, GeofenceUtils.ACTION_GEOFENCES_ADDED)) {
                 handleGeofenceAddRemove(context, intent);
-                Toast.makeText(context, "Geofence has been added!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Location Services: Geofence has been added!", Toast.LENGTH_SHORT).show();
 
             } else if (TextUtils.equals(action, GeofenceUtils.ACTION_GEOFENCES_REMOVED)) {
-                Toast.makeText(context, "Geofence has been removed!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Location Services: Geofences have been removed!", Toast.LENGTH_SHORT).show();
 
                 // Intent contains information about a geofence transition
             } else if (TextUtils.equals(action, GeofenceUtils.ACTION_GEOFENCE_TRANSITION)) {

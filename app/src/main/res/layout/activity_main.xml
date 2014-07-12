@@ -88,13 +88,6 @@
                 android:layout_weight="1"
                 android:text="@string/savelocationbuttonlabel"
                 android:onClick="SaveLocation" />
-            <Button
-                android:id="@+id/unregister_by_pending_intent"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/unregister_geofence"
-                android:onClick="RemoveAllGeofences" />
         </LinearLayout>
 
         <LinearLayout
@@ -118,13 +111,23 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/listOfAddedGeofences"
                 tools:listitem="@layout/location_row"
-                android:drawSelectorOnTop="true" />
+                android:drawSelectorOnTop="false" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginTop="10dp">
+
+            <Button
+                android:id="@+id/unregister_by_pending_intent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/unregister_geofence"
+                android:onClick="RemoveAllGeofences"
+                android:layout_gravity="center_horizontal" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
