@@ -11,6 +11,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
@@ -51,10 +53,8 @@ import java.util.List;
     // private static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS = GEOFENCE_EXPIRATION_IN_HOURS * DateUtils.HOUR_IN_MILLIS;
     // Sets the geofence radius to 10 meters
     private static final long GEOFENCE_RADIUS = 10;
-    // GPS interval
     private static final long GPS_INTERVAL_IN_MINUTES = 1;
     private static final long GPS_INTERVAL = 60000 * GPS_INTERVAL_IN_MINUTES;
-    // GPS minimum distance in meters
     private static final long GPS_MIN_DISTANCE = 10;
 
     // Store the current request
@@ -93,10 +93,16 @@ import java.util.List;
 
     // An intent filter for the broadcast receiver
     private IntentFilter myIntentFilter;
-
     // Store the list of geofences to remove
     private List<String> geofencesToRemove;
 
+    // Timer variables
+    private TextView current_duration_value;
+    private long startTime = 0L;
+    private Handler customHandler = new Handler();
+    long timeInMilliseconds = 0L;
+
+    private boolean currently_in_geofence;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,11 +137,7 @@ import java.util.List;
         myLongitude = (TextView) findViewById(R.id.current_longitude_value);
         myLocationLabel = (EditText) findViewById(R.id.current_location_label_value);
         TextView myMessage = (TextView) findViewById(R.id.messages_value);
-
-
-        // SET DEFAULT VALUES FOR TESTING
-        myLatitude.setText("111.111");
-        myLongitude.setText("222.222");
+        current_duration_value = (TextView) findViewById(R.id.current_duration_value);
 
 
         /* Use the LocationManager class to obtain GPS locations */
@@ -168,6 +170,14 @@ import java.util.List;
 
         // Request the location updates from GPS, time in milliseconds, min-distance in meters
         myLocationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, GPS_INTERVAL, GPS_MIN_DISTANCE, locListener);
+
+        // SET DEFAULT VALUES FOR TESTING
+        myLatitude.setText("111.111");
+        myLongitude.setText("222.222");
+        // START THE DURATION TIMER
+        startDurationTimer();
+
+        currently_in_geofence = false;
     }
 
 
@@ -380,28 +390,14 @@ import java.util.List;
      */
     public void RemoveAllGeofences(View view) {
         /*
-         * Remove all geofences set by this app. To do this, get the
-         * PendingIntent that was added when the geofences were added
-         * and use it as an argument to removeGeofences(). The removal
-         * happens asynchronously; Location Services calls
-         * onRemoveGeofencesByPendingIntentResult() (implemented in
-         * the current Activity) when the removal is done
+         * Remove all geofences set by this app. To do this, get the PendingIntent that was added when the geofences were added
+         * and use it as an argument to removeGeofences(). The removal happens asynchronously; Location Services calls
+         * onRemoveGeofencesByPendingIntentResult() (implemented in the current Activity) when the removal is done
          */
 
-        /*
-         * Record the removal as remove by Intent. If a connection error occurs,
-         * the app can automatically restart the removal if Google Play services
-         * can fix the error
-         */
         // Record the type of removal
         removeType = GeofenceUtils.REMOVE_TYPE.INTENT;
 
-        /*
-         * Check for Google Play services. Do this after
-         * setting the request type. If connecting to Google Play services
-         * fails, onActivityResult is eventually called, and it needs to
-         * know what type of request was in progress.
-         */
         if (!servicesConnected()) {
             return;
         }
@@ -478,19 +474,13 @@ import java.util.List;
     }
 
     /**
-     * Called when the user clicks the "savelocation" button.
-     * Create the PendingIntent containing an Intent that
-     * Location Services sends to this app's broadcast receiver when
-     * Location Services detects a geofence transition. Send the List
+     * Called when the user clicks the "savelocation" button. Create the PendingIntent containing an Intent that
+     * Location Services sends to this app's broadcast receiver when Location Services detects a geofence transition. Send the List
      * and the PendingIntent to Location Services.
      */
     public void SaveLocation(View view) {
-        /*
-         * Record the request as an ADD. If a connection error occurs, the app can
-         * automatically restart the add request if Google Play services can fix the error
-         */
-        requestType = GeofenceUtils.REQUEST_TYPE.ADD;
 
+        requestType = GeofenceUtils.REQUEST_TYPE.ADD;
         // Check for Google Play services and check input fields
         if (!servicesConnected() || !checkInputFields()) { return; }
 
@@ -498,24 +488,18 @@ import java.util.List;
         TODO
         Check to make sure this geofence doesn't overlap with an existing geofence
         Make sure this geofence name doesn't match an existing geofence
-        Insert the current geofence into the database
         */
+        if(currently_in_geofence == true) {
+            Toast.makeText(this, "ERROR: Cannot save this Geofence since you are already in a saved Geofence",
+                    Toast.LENGTH_SHORT).show();
+            updateTable();
+            return;
+        }
 
-        Log.d(GeofenceUtils.APPTAG, "Calling insertGeofenceToDB()");
-        // insert to database (label, latitude, longitude, totaltime)
-        myDBHelper.insertGeofenceToDB(
-                myLocationLabel.getText().toString(),
-                Double.valueOf(myLatitude.getText().toString()),
-                Double.valueOf(myLongitude.getText().toString()),
-                0);
-
-        /*
-        *  Create the Geofence object and add it to the Geofence List
-        *  to be sent to Location Services
-        */
+        // Create the Geofence object and add it to the Geofence List to be sent to Location Services
         Log.d(GeofenceUtils.APPTAG, "Creating Geofence object");
         geofenceList.add(
-            // Build a new Geofence object
+            // Build a new Geofence object based on the values of Lat and Long textViews
             // set the RequestId to the Current Location Label
              new Geofence.Builder()
                     .setRequestId(myLocationLabel.getText().toString())
@@ -554,8 +538,10 @@ import java.util.List;
             return;
         }
 
+        // NOTE database add/remove is handled in handleGeofenceAddRemove()
         Log.d(GeofenceUtils.APPTAG, "Just added geofence "+myLocationLabel.getText().toString() + " to Location Services");
-        //myMessage.setText("Just added "+myLocationLabel.getText().toString());
+
+        currently_in_geofence = true;
         updateTable();
     }
     /**
@@ -641,6 +627,31 @@ import java.util.List;
         return inputOK;
     }
 
+
+
+    // Start the duration timer in the main activity screen
+    public void startDurationTimer()
+    {
+        Log.d(GeofenceUtils.APPTAG, "Starting current duration timer");
+
+        startTime = SystemClock.uptimeMillis();
+        // The customHandler will run the process updateTimerThread on a different thread
+        customHandler.postDelayed(updateTimerThread, 0);
+    }
+
+    private Runnable updateTimerThread = new Runnable() {
+        public void run() {
+            timeInMilliseconds = SystemClock.uptimeMillis() - startTime;
+
+            int secs = (int) (timeInMilliseconds / 1000);
+            int mins = secs / 60;
+            secs = secs % 60;
+
+            current_duration_value.setText("" + mins + ":" + String.format("%02d", secs));
+            customHandler.postDelayed(this, 0);
+        }
+    };
+
     /**
      * Define a Broadcast receiver that receives updates from connection listeners and
      * the geofence transition service.
@@ -685,8 +696,18 @@ import java.util.List;
          * @param intent The received broadcast Intent
          */
         private void handleGeofenceAddRemove(Context context, Intent intent) {
+            Log.d(GeofenceUtils.APPTAG, "Entered handleGeofenceAddRemove()");
+
             if(TextUtils.equals(intent.getAction(), "ADD")) {
-                // add geofence information to database
+
+                // insert to database (label, latitude, longitude, totaltime)
+                Log.d(GeofenceUtils.APPTAG, "Calling insertGeofenceToDB()");
+                myDBHelper.insertGeofenceToDB(
+                        myLocationLabel.getText().toString(),
+                        Double.valueOf(myLatitude.getText().toString()),
+                        Double.valueOf(myLongitude.getText().toString()),
+                        0);
+
             } else if (TextUtils.equals(intent.getAction(),"REMOVE")) {
                 // remove geofence information from database
             }
@@ -698,11 +719,11 @@ import java.util.List;
          * @param intent The Intent containing the transition
          */
         private void handleGeofenceTransition(Context context, Intent intent) {
-
+            Log.d(GeofenceUtils.APPTAG,"About to handle a geofence transition with handleGeofenceTransition()");
             String transitionMessage = "A Geofence transition has occurred: " + intent.getAction();
 
-            Toast.makeText( context, transitionMessage, Toast.LENGTH_SHORT).show();
-            Log.e(GeofenceUtils.APPTAG, transitionMessage);
+            //Toast.makeText( context, transitionMessage, Toast.LENGTH_SHORT).show();
+            Log.d(GeofenceUtils.APPTAG, transitionMessage);
         }
 
         /**
@@ -749,5 +770,6 @@ import java.util.List;
             return mDialog;
         }
     }
+
 
 }
